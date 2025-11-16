@@ -1,4 +1,4 @@
-name: Generate Hebrew Bible EPUBs
+name: Generate Tanakh EPUB
 
 on:
   push:
@@ -7,11 +7,6 @@ on:
     branches: [ main ]
   workflow_dispatch:  # Allow manual trigger
     inputs:
-      include_commentaries:
-        description: 'Include commentary editions (slower)'
-        required: false
-        type: boolean
-        default: false
       test_mode:
         description: 'Test mode (only 3 chapters per book)'
         required: false
@@ -19,17 +14,11 @@ on:
         default: false
 
 jobs:
-  generate-and-deploy:
+  generate:
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - name: Checkout repository
@@ -53,104 +42,27 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Set generation mode
-      id: mode
-      run: |
-        if [[ "${{ github.event.inputs.test_mode }}" == "true" ]]; then
-          echo "MODE=test" >> $GITHUB_OUTPUT
-          echo "Running in TEST mode (3 chapters per book)"
-        else
-          echo "MODE=full" >> $GITHUB_OUTPUT
-          echo "Running in FULL mode (all chapters)"
-        fi
-
-    - name: Generate base EPUB versions
+    - name: Generate Tanakh EPUB
       run: |
         mkdir -p output
 
-        # Determine mode flag
-        if [[ "${{ steps.mode.outputs.MODE }}" == "full" ]]; then
-          MODE_FLAG="--full"
+        if [[ "${{ github.event.inputs.test_mode }}" == "true" ]]; then
+          echo "Running in TEST mode (3 chapters per book)"
+          python generate_tanakh.py --test -o output/tanakh_test.epub
         else
-          MODE_FLAG=""
+          echo "Running in FULL mode (all chapters)"
+          python generate_tanakh.py -o output/tanakh.epub
         fi
 
         echo "=========================================="
-        echo "Generating base Torah versions..."
-        echo "=========================================="
-
-        # Base unified responsive version (adapts to orientation)
-        python torah_unified_responsive.py $MODE_FLAG -o output/torah.epub
-
-        echo "=========================================="
-        echo "Generating special editions..."
-        echo "=========================================="
-
-        # Illustrated landscape version
-        python torah_illustrated_landscape.py $MODE_FLAG
-        if [[ -f torah_illustrated_landscape_full.epub ]]; then
-          mv torah_illustrated_landscape_full.epub output/
-        else
-          mv torah_illustrated_landscape_sample.epub output/
-        fi
-
-        # Illustrated bilingual version with dedication
-        python torah_illustrated_bilingual.py $MODE_FLAG
-        mv torah_illustrated_bilingual.epub output/
-
-        # List all generated files
-        echo "=========================================="
-        echo "Base EPUBs generated:"
+        echo "EPUB generated:"
         echo "=========================================="
         ls -lh output/*.epub
-
-    - name: Generate commentary editions (if requested)
-      if: github.event.inputs.include_commentaries == 'true'
-      run: |
-        # Determine mode flag
-        if [[ "${{ steps.mode.outputs.MODE }}" == "full" ]]; then
-          MODE_FLAG="--full"
-        else
-          MODE_FLAG=""
-        fi
-
-        echo "=========================================="
-        echo "Generating Torah with Rashi..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py $MODE_FLAG --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
-        python torah_commentary_generator.py $MODE_FLAG --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Ibn Ezra..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py $MODE_FLAG --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
-        python torah_commentary_generator.py $MODE_FLAG --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Ramban..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py $MODE_FLAG --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
-        python torah_commentary_generator.py $MODE_FLAG --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Sforno..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py $MODE_FLAG --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
-        python torah_commentary_generator.py $MODE_FLAG --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
-
-        echo "=========================================="
-        echo "Commentary EPUBs generated:"
-        echo "=========================================="
-        ls -lh output/*_portrait.epub output/*_landscape.epub | grep -E "(rashi|ibn_ezra|ramban|sforno)"
 
     - name: Upload EPUBs as artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: torah-epubs-${{ github.sha }}
+        name: tanakh-epub-${{ github.sha }}
         path: output/*.epub
         retention-days: 90
 
@@ -162,27 +74,20 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: build-${{ github.run_number }}
-        release_name: Torah EPUBs - Build ${{ github.run_number }}
+        release_name: Tanakh EPUB - Build ${{ github.run_number }}
         body: |
-          Automated build of Torah EPUBs from commit ${{ github.sha }}
+          Automated build of Tanakh EPUB from commit ${{ github.sha }}
 
-          ## 📚 Available Editions
+          ## 📚 Hebrew Bible (Tanakh) for Kobo E-Readers
 
-          ### Base Torah (no commentary)
-          - `torah_portrait.epub` - Portrait optimized
-          - `torah_landscape.epub` - Landscape optimized
+          Complete Hebrew Bible with:
+          - All 39 books (Torah, Prophets, Writings)
+          - Hebrew and English text side-by-side
+          - Custom artwork illustrations
+          - Responsive layout (adapts to portrait/landscape)
+          - Optimized for Kobo Libra Colour
 
-          ### Special Editions
-          - `torah_illustrated_landscape_*.epub` - Illustrated with artistic themes
-          - `torah_illustrated_bilingual.epub` - Bilingual with dedication to Bruno "DaVenzia" Naphtali
-
-          All editions feature hierarchical Book → Chapter table of contents for easy navigation.
-
-          ### Commentary Editions
-          Commentary editions are generated only when manually triggered with the `include_commentaries` option.
-
-          All editions display Hebrew and English text with proper RTL support.
-          Portrait versions stack content vertically; landscape versions use side-by-side layout.
+          Download `tanakh.epub` and transfer to your e-reader.
         draft: false
         prerelease: false
 
@@ -196,19 +101,3 @@ jobs:
         done
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # Deploy to GitHub Pages (only on main branch push)
-    - name: Setup Pages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/configure-pages@v4
-
-    - name: Upload Pages artifact
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: '.'
-
-    - name: Deploy to GitHub Pages
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      id: deployment
-      uses: actions/deploy-pages@v4
