@@ -118,6 +118,7 @@ jobs:
       run: |
         mkdir -p _site
         cp index.html _site/
+        cp gallery.html _site/ || true
         cp output/tanakh.epub _site/tanakh.epub || true
 
     - name: Upload Pages artifact
