@@ -1,417 +1,219 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hebrew Bible for E-Readers | תנ״ך לקוראים אלקטרוניים</title>
-    <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #1a472a;
-            --secondary-color: #2d5016;
-            --accent-color: #8b4513;
-            --text-color: #333;
-            --bg-color: #faf8f3;
-            --card-bg: #ffffff;
-            --hebrew-font: 'David Libre', serif;
-            --english-font: 'Crimson Text', serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--english-font);
-            background: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .hebrew {
-            font-family: var(--hebrew-font);
-            direction: rtl;
-            text-align: right;
-        }
-
-        /* Header with Dedication */
-        .dedication {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dedication::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.1"><rect width="100" height="100" fill="white"/><path d="M0 0L50 50L0 100M50 0L100 50L50 100" stroke="white" stroke-width="1" fill="none"/></svg>');
-            opacity: 0.1;
-        }
-
-        .dedication-content {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .dedication h1 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .dedication-text {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 2rem;
-            margin: 2rem 0;
-            backdrop-filter: blur(10px);
-        }
-
-        .dedication-hebrew {
-            font-size: 1.5rem;
-            line-height: 1.8;
-            margin-bottom: 1rem;
-        }
-
-        .dedication-english {
-            font-size: 1.1rem;
-            font-style: italic;
-            opacity: 0.95;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .intro {
-            text-align: center;
-            padding: 3rem 0;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .intro h2 {
-            color: var(--primary-color);
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .intro p {
-            font-size: 1.2rem;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Features Grid */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .feature {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* Downloads Section */
-        .downloads {
-            margin: 4rem 0;
-        }
-
-        .downloads h2 {
-            text-align: center;
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .download-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .download-card {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s;
-        }
-
-        .download-card:hover {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
-        }
-
-        .download-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.3rem;
-        }
-
-        .download-card .hebrew-title {
-            color: var(--accent-color);
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .download-card p {
-            color: #666;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .download-btn {
-            display: inline-block;
-            background: var(--primary-color);
-            color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background 0.3s;
-            font-weight: 600;
-        }
-
-        .download-btn:hover {
-            background: var(--secondary-color);
-        }
-
-        .file-size {
-            display: inline-block;
-            margin-left: 1rem;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
-        }
-
-        footer a {
-            color: white;
-            opacity: 0.8;
-        }
-
-        footer a:hover {
-            opacity: 1;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dedication h1 {
-                font-size: 2rem;
-            }
-
-            .dedication-hebrew {
-                font-size: 1.2rem;
-            }
-
-            .downloads h2 {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;700&family=Crimson+Text:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="static/styles.css" />
+  </head>
+  <body>
     <!-- Dedication Section -->
     <div class="dedication">
-        <div class="dedication-content">
-            <h1 class="hebrew">תנ״ך לקוראים אלקטרוניים</h1>
-            <h1>Hebrew Bible for E-Readers</h1>
+      <div class="dedication-content">
+        <h1 class="hebrew">תנ״ך לקוראים אלקטרוניים</h1>
+        <h1>Hebrew Bible for E-Readers</h1>
 
-            <div class="dedication-text">
-                <div class="hebrew dedication-hebrew">
-                    לשם יחוד קודשא בריך הוא ושכינתיה<br>
-                    הריני מדפיס דברי תורה לשם מצווה<br>
-                    שיהיו לרבים ללמד, לדעת, ולעורר את הלב לאבינו שבשמים
-                </div>
-                <div class="dedication-english">
-                    For the sake of the unity of the Holy Blessed One and His Presence.<br>
-                    Behold, I publish these words of Torah for the sake of the mitzvah,<br>
-                    that they may help many to learn, to understand, and to awaken the heart toward our Father in Heaven.
-                </div>
-            </div>
+        <div class="dedication-text">
+          <div class="hebrew dedication-hebrew">
+            לשם יחוד קודשא בריך הוא ושכינתיה<br />
+            הריני מדפיס דברי תורה לשם מצווה<br />
+            שיהיו לרבים ללמד, לדעת, ולעורר את הלב לאבינו שבשמים
+          </div>
+          <div class="dedication-english">
+            For the sake of the unity of the Holy Blessed One and His Presence.<br />
+            Behold, I publish these words of Torah for the sake of the mitzvah,<br />
+            that they may help many to learn, to understand, and to awaken the heart toward our
+            Father in Heaven.
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="container">
-        <!-- Introduction -->
-        <section class="intro">
-            <h2>Free Hebrew Bible EPUBs for Kobo & E-Readers</h2>
-            <p>Professionally formatted editions of the Tanakh optimized for digital reading, with Hebrew text, multiple translations, and classical commentaries.</p>
-        </section>
+      <!-- Introduction -->
+      <section class="intro">
+        <h2>Free Hebrew Bible EPUBs for Kobo & E-Readers</h2>
+        <p>
+          Professionally formatted editions of the Tanakh optimized for digital reading, with Hebrew
+          text, multiple translations, and classical commentaries.
+        </p>
+      </section>
 
-        <!-- Features -->
-        <section class="features">
-            <div class="feature">
-                <div class="feature-icon">📖</div>
-                <h3>Multiple Formats</h3>
-                <p>Hebrew only, English only, or side-by-side bilingual editions</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">📝</div>
-                <h3>With Commentary</h3>
-                <p>Includes Rashi and other classical commentaries</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">📱</div>
-                <h3>Kobo Optimized</h3>
-                <p>Specially formatted for Kobo Color and other e-readers</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🔤</div>
-                <h3>Hebrew Support</h3>
-                <p>Full RTL support with proper Hebrew fonts</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">📅</div>
-                <h3>Parsha Markers</h3>
-                <p>Weekly Torah portion divisions clearly marked</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🆓</div>
-                <h3>Free & Open</h3>
-                <p>All texts from Sefaria's open-source library</p>
-            </div>
-        </section>
+      <!-- Features -->
+      <section class="features">
+        <div class="feature">
+          <div class="feature-icon">📖</div>
+          <h3>Multiple Formats</h3>
+          <p>Hebrew only, English only, or side-by-side bilingual editions</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📝</div>
+          <h3>With Commentary</h3>
+          <p>Includes Rashi and other classical commentaries</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📱</div>
+          <h3>Kobo Optimized</h3>
+          <p>Specially formatted for Kobo Color and other e-readers</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔤</div>
+          <h3>Hebrew Support</h3>
+          <p>Full RTL support with proper Hebrew fonts</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">📅</div>
+          <h3>Parsha Markers</h3>
+          <p>Weekly Torah portion divisions clearly marked</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🆓</div>
+          <h3>Free & Open</h3>
+          <p>All texts from Sefaria's open-source library</p>
+        </div>
+      </section>
 
-        <!-- Downloads -->
-        <section class="downloads">
-            <h2>📚 Download Library</h2>
+      <!-- Downloads -->
+      <section class="downloads">
+        <h2>📚 Download Library</h2>
 
-            <div class="download-grid">
-                <!-- Torah Editions -->
-                <div class="download-card">
-                    <h3>Torah - Hebrew Only</h3>
-                    <div class="hebrew hebrew-title">חמישה חומשי תורה</div>
-                    <p>Pure Hebrew text of the Five Books of Moses with parsha markers.</p>
-                    <a href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah_hebrew.epub" class="download-btn">Download EPUB</a>
-                    <span class="file-size">~500 KB</span>
-                </div>
+        <div class="download-grid">
+          <!-- Torah Editions -->
+          <div class="download-card">
+            <h3>Torah - Hebrew Only</h3>
+            <div class="hebrew hebrew-title">חמישה חומשי תורה</div>
+            <p>Pure Hebrew text of the Five Books of Moses with parsha markers.</p>
+            <a
+              href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah_hebrew.epub"
+              class="download-btn"
+              >Download EPUB</a
+            >
+            <span class="file-size">~500 KB</span>
+          </div>
 
-                <div class="download-card">
-                    <h3>Torah - Bilingual</h3>
-                    <div class="hebrew hebrew-title">תורה דו-לשונית</div>
-                    <p>Hebrew and English translation side-by-side in landscape, stacked in portrait.</p>
-                    <a href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah.epub" class="download-btn">Download EPUB</a>
-                    <span class="file-size">~985 KB</span>
-                </div>
+          <div class="download-card">
+            <h3>Torah - Bilingual</h3>
+            <div class="hebrew hebrew-title">תורה דו-לשונית</div>
+            <p>Hebrew and English translation side-by-side in landscape, stacked in portrait.</p>
+            <a
+              href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah.epub"
+              class="download-btn"
+              >Download EPUB</a
+            >
+            <span class="file-size">~985 KB</span>
+          </div>
 
-                <div class="download-card">
-                    <h3>Torah with Rashi</h3>
-                    <div class="hebrew hebrew-title">תורה עם רש״י</div>
-                    <p>Hebrew text with the classic Rashi commentary below each verse.</p>
-                    <a href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah_rashi_fixed.epub" class="download-btn">Download EPUB</a>
-                    <span class="file-size">~1 MB</span>
-                </div>
+          <div class="download-card">
+            <h3>Torah with Rashi</h3>
+            <div class="hebrew hebrew-title">תורה עם רש״י</div>
+            <p>Hebrew text with the classic Rashi commentary below each verse.</p>
+            <a
+              href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/torah_rashi_fixed.epub"
+              class="download-btn"
+              >Download EPUB</a
+            >
+            <span class="file-size">~1 MB</span>
+          </div>
 
-                <div class="download-card">
-                    <h3>Ultimate Edition - All Versions</h3>
-                    <div class="hebrew hebrew-title">מהדורה מקיפה</div>
-                    <p>Contains Hebrew only, English only, bilingual, and with Rashi - all in one EPUB! Navigate between versions using table of contents.</p>
-                    <a href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/hebrew_bible_ultimate.epub" class="download-btn">Download EPUB</a>
-                    <span class="file-size">~337 KB</span>
-                </div>
-
-                <div class="download-card">
-                    <h3>Sample Tanakh</h3>
-                    <div class="hebrew hebrew-title">תנ״ך - דוגמה</div>
-                    <p>Sample with Torah (Genesis), Prophets (Isaiah), and Writings (Psalms, Daniel).</p>
-                    <a href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/tanakh_test.epub" class="download-btn">Download EPUB</a>
-                    <span class="file-size">~26 KB</span>
-                </div>
-
-                <!-- Coming Soon -->
-                <div class="download-card" style="opacity: 0.7;">
-                    <h3>More Coming Soon!</h3>
-                    <div class="hebrew hebrew-title">עוד בקרוב</div>
-                    <p>We're working on generating complete Prophets, Writings, and additional commentary editions.</p>
-                    <button class="download-btn" disabled style="opacity: 0.5; cursor: not-allowed;">Coming Soon</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Instructions -->
-        <section class="intro" style="margin-top: 4rem;">
-            <h2>How to Use</h2>
-            <p><strong>For Kobo:</strong> Connect your device via USB and copy the EPUB files to the root directory.</p>
-            <p><strong>For Kindle:</strong> Email the EPUB to your Kindle email address or use Calibre to convert to MOBI.</p>
-            <p><strong>For other e-readers:</strong> Most modern e-readers support EPUB format directly.</p>
-        </section>
-    </div>
-
-        <!-- How It's Made Section -->
-        <section class="intro" style="margin-top: 4rem; background: #f9f9f9; padding: 3rem; border-radius: 10px;">
-            <h2>📖 How These EPUBs Are Generated</h2>
-            <p style="margin-bottom: 2rem;">All EPUBs are automatically generated from the Sefaria API using Python scripts that:</p>
-            <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-                <ul style="line-height: 2;">
-                    <li>📥 Fetch Hebrew texts and translations from Sefaria's open database</li>
-                    <li>🔤 Support multiple English translations (JPS, Koren, Community, etc.)</li>
-                    <li>📝 Include classical commentaries like Rashi, Ibn Ezra, and Ramban</li>
-                    <li>📱 Optimize layouts for e-reader screens (especially Kobo Color)</li>
-                    <li>🎨 Handle Hebrew RTL text and proper font embedding</li>
-                    <li>📊 Generate responsive layouts that adapt to portrait/landscape</li>
-                </ul>
-            </div>
-            <p style="margin-top: 2rem;">
-                <strong>GitHub Actions</strong> automatically builds fresh EPUBs whenever the code is updated.<br>
-                You can also fork the repository and customize the generation for your preferences.
+          <div class="download-card">
+            <h3>Ultimate Edition - All Versions</h3>
+            <div class="hebrew hebrew-title">מהדורה מקיפה</div>
+            <p>
+              Contains Hebrew only, English only, bilingual, and with Rashi - all in one EPUB!
+              Navigate between versions using table of contents.
             </p>
-        </section>
+            <a
+              href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/hebrew_bible_ultimate.epub"
+              class="download-btn"
+              >Download EPUB</a
+            >
+            <span class="file-size">~337 KB</span>
+          </div>
+
+          <div class="download-card">
+            <h3>Sample Tanakh</h3>
+            <div class="hebrew hebrew-title">תנ״ך - דוגמה</div>
+            <p>Sample with Torah (Genesis), Prophets (Isaiah), and Writings (Psalms, Daniel).</p>
+            <a
+              href="https://github.com/posix4e/hebrew-bible-ereader/releases/download/v1.0.0/tanakh_test.epub"
+              class="download-btn"
+              >Download EPUB</a
+            >
+            <span class="file-size">~26 KB</span>
+          </div>
+
+          <!-- Coming Soon -->
+          <div class="download-card" style="opacity: 0.7">
+            <h3>More Coming Soon!</h3>
+            <div class="hebrew hebrew-title">עוד בקרוב</div>
+            <p>
+              We're working on generating complete Prophets, Writings, and additional commentary
+              editions.
+            </p>
+            <button class="download-btn" disabled style="opacity: 0.5; cursor: not-allowed">
+              Coming Soon
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Instructions -->
+      <section class="intro" style="margin-top: 4rem">
+        <h2>How to Use</h2>
+        <p>
+          <strong>For Kobo:</strong> Connect your device via USB and copy the EPUB files to the root
+          directory.
+        </p>
+        <p>
+          <strong>For Kindle:</strong> Email the EPUB to your Kindle email address or use Calibre to
+          convert to MOBI.
+        </p>
+        <p>
+          <strong>For other e-readers:</strong> Most modern e-readers support EPUB format directly.
+        </p>
+      </section>
     </div>
+
+    <!-- How It's Made Section -->
+    <section
+      class="intro"
+      style="margin-top: 4rem; background: #f9f9f9; padding: 3rem; border-radius: 10px"
+    >
+      <h2>📖 How These EPUBs Are Generated</h2>
+      <p style="margin-bottom: 2rem">
+        All EPUBs are automatically generated from the Sefaria API using Python scripts that:
+      </p>
+      <div style="text-align: left; max-width: 600px; margin: 0 auto">
+        <ul style="line-height: 2">
+          <li>📥 Fetch Hebrew texts and translations from Sefaria's open database</li>
+          <li>🔤 Support multiple English translations (JPS, Koren, Community, etc.)</li>
+          <li>📝 Include classical commentaries like Rashi, Ibn Ezra, and Ramban</li>
+          <li>📱 Optimize layouts for e-reader screens (especially Kobo Color)</li>
+          <li>🎨 Handle Hebrew RTL text and proper font embedding</li>
+          <li>📊 Generate responsive layouts that adapt to portrait/landscape</li>
+        </ul>
+      </div>
+      <p style="margin-top: 2rem">
+        <strong>GitHub Actions</strong> automatically builds fresh EPUBs whenever the code is
+        updated.<br />
+        You can also fork the repository and customize the generation for your preferences.
+      </p>
+    </section>
 
     <footer>
-        <p>📚 Generated from <a href="https://www.sefaria.org">Sefaria</a> open-source texts</p>
-        <p>💻 Source code & documentation: <a href="https://github.com/posix4e/hebrew-bible-ereader">GitHub Repository</a></p>
-        <p>🔧 Built with Python, ebooklib, and the Sefaria API</p>
-        <p>Last updated: <span id="update-date">2024</span></p>
+      <p>📚 Generated from <a href="https://www.sefaria.org">Sefaria</a> open-source texts</p>
+      <p>
+        💻 Source code & documentation:
+        <a href="https://github.com/posix4e/hebrew-bible-ereader">GitHub Repository</a>
+      </p>
+      <p>🔧 Built with Python, ebooklib, and the Sefaria API</p>
+      <p>Last updated: <span id="update-date">2024</span></p>
     </footer>
 
-    <script>
-        // Set current date
-        document.getElementById('update-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    </script>
-</body>
+    <script src="static/main.js"></script>
+  </body>
 </html>
