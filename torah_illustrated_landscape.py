@@ -707,8 +707,33 @@ class TorahIllustratedLandscape:
 
                 time.sleep(0.1)  # API courtesy
 
-        # Set TOC
-        self.book.toc = flat_toc
+        # Build hierarchical TOC
+        hierarchical_toc = []
+        current_book = None
+        book_chapters = []
+
+        for item in flat_toc:
+            # Check if this is a new book
+            for book_data in self.torah_books:
+                english_name = book_data[0]
+                if item.file_name.startswith(f"{english_name.lower()}_"):
+                    if current_book and current_book != english_name:
+                        # Add previous book to TOC
+                        if book_chapters:
+                            hierarchical_toc.append((epub.Section(current_book), book_chapters))
+                            book_chapters = []
+                    current_book = english_name
+                    break
+
+            if current_book:
+                book_chapters.append(item)
+
+        # Add last book
+        if current_book and book_chapters:
+            hierarchical_toc.append((epub.Section(current_book), book_chapters))
+
+        # Set hierarchical TOC
+        self.book.toc = hierarchical_toc
 
         # Add navigation files
         self.book.add_item(epub.EpubNcx())

@@ -87,10 +87,6 @@ jobs:
         echo "Generating special editions..."
         echo "=========================================="
 
-        # Hierarchical TOC version
-        python torah_hierarchical_toc.py $MODE_FLAG
-        mv torah_hierarchical.epub output/
-
         # Illustrated landscape version
         python torah_illustrated_landscape.py $MODE_FLAG
         if [[ -f torah_illustrated_landscape_full.epub ]]; then
@@ -178,9 +174,10 @@ jobs:
           - `torah_landscape.epub` - Landscape optimized
 
           ### Special Editions
-          - `torah_hierarchical.epub` - Hierarchical TOC navigation
           - `torah_illustrated_landscape_*.epub` - Illustrated with artistic themes
           - `torah_illustrated_bilingual.epub` - Bilingual with dedication to Bruno "DaVenzia" Naphtali
+
+          All editions feature hierarchical Book → Chapter table of contents for easy navigation.
 
           ### Commentary Editions
           Commentary editions are generated only when manually triggered with the `include_commentaries` option.
