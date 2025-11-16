@@ -50,49 +50,53 @@ jobs:
         echo "Generating base Torah versions..."
         echo "=========================================="
 
-        # Base versions (no commentary)
-        python torah_commentary_generator.py --orientation portrait -o output/torah_portrait.epub
-        python torah_commentary_generator.py --orientation landscape -o output/torah_landscape.epub
+        # Base versions (no commentary) - FULL Torah
+        python torah_commentary_generator.py --full --orientation portrait -o output/torah_portrait.epub
+        python torah_commentary_generator.py --full --orientation landscape -o output/torah_landscape.epub
 
         echo "=========================================="
         echo "Generating Torah with Rashi..."
         echo "=========================================="
 
-        python torah_commentary_generator.py --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
-        python torah_commentary_generator.py --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
+        python torah_commentary_generator.py --full --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
+        python torah_commentary_generator.py --full --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
 
         echo "=========================================="
         echo "Generating Torah with Ibn Ezra..."
         echo "=========================================="
 
-        python torah_commentary_generator.py --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
-        python torah_commentary_generator.py --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
+        python torah_commentary_generator.py --full --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
+        python torah_commentary_generator.py --full --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
 
         echo "=========================================="
         echo "Generating Torah with Ramban..."
         echo "=========================================="
 
-        python torah_commentary_generator.py --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
-        python torah_commentary_generator.py --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
+        python torah_commentary_generator.py --full --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
+        python torah_commentary_generator.py --full --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
 
         echo "=========================================="
         echo "Generating Torah with Sforno..."
         echo "=========================================="
 
-        python torah_commentary_generator.py --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
-        python torah_commentary_generator.py --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
+        python torah_commentary_generator.py --full --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
+        python torah_commentary_generator.py --full --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
 
         echo "=========================================="
         echo "Generating special editions..."
         echo "=========================================="
 
-        # Hierarchical TOC version
-        python torah_hierarchical_toc.py
+        # Hierarchical TOC version (full)
+        python torah_hierarchical_toc.py --full
         mv torah_hierarchical.epub output/
 
-        # Illustrated landscape version
-        python torah_illustrated_landscape.py
-        mv torah_illustrated_landscape_sample.epub output/
+        # Illustrated landscape version (full)
+        python torah_illustrated_landscape.py --full
+        mv torah_illustrated_landscape_full.epub output/
+
+        # Illustrated bilingual version (full)
+        python torah_illustrated_bilingual.py --full
+        mv torah_illustrated_bilingual.epub output/
 
         # List all generated files
         echo "=========================================="

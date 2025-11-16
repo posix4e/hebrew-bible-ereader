@@ -511,7 +511,9 @@ class TorahHierarchicalTOC:
 </html>"""
         return html
 
-    def generate_epub(self, output_filename: str = "torah_hierarchical.epub"):
+    def generate_epub(
+        self, output_filename: str = "torah_hierarchical.epub", test_mode: bool = True
+    ):
         """Generate the hierarchical EPUB"""
         print("=" * 60)
         print("Torah Hierarchical TOC Edition Generator")
@@ -546,8 +548,8 @@ class TorahHierarchicalTOC:
             # Book entry in TOC
             book_chapters = []
 
-            # Generate only first 5 chapters for testing
-            chapters_to_generate = min(5, total_chapters)
+            # Generate chapters based on test_mode
+            chapters_to_generate = min(5, total_chapters) if test_mode else total_chapters
 
             for chapter_num in range(1, chapters_to_generate + 1):
                 print(f"  Chapter {chapter_num}/{total_chapters}")
@@ -625,5 +627,10 @@ class TorahHierarchicalTOC:
 
 
 if __name__ == "__main__":
+    import sys
+
+    # Check if we want full Torah or just sample
+    full = "--full" in sys.argv
+
     generator = TorahHierarchicalTOC()
-    generator.generate_epub()
+    generator.generate_epub(test_mode=not full)
