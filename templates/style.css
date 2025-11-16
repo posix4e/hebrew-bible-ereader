@@ -1,0 +1,140 @@
+@font-face {
+  font-family: "NotoSerifHebrew";
+  src: url("fonts/NotoSerifHebrew-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: Georgia, serif;
+  line-height: 1.6;
+  margin: 1em;
+  background: linear-gradient(to bottom, #faf9f5 0%, #f5f3eb 100%);
+}
+
+.chapter-container {
+  margin: 0 auto;
+  padding: 1em;
+}
+
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5em;
+  border-radius: 12px;
+  margin-bottom: 1.5em;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.8em;
+  margin-bottom: 0.2em;
+}
+
+h2 {
+  font-size: 1.3em;
+  opacity: 0.95;
+}
+
+.content-layout {
+  display: block;
+}
+
+.text-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.hebrew-section {
+  direction: rtl;
+  text-align: right;
+  background: linear-gradient(to right, #f0f4ff, #ffffff);
+}
+
+.english-section {
+  direction: ltr;
+  text-align: left;
+  background: linear-gradient(to left, #fff9f0, #ffffff);
+}
+
+.hebrew-text {
+  font-family: "NotoSerifHebrew", serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  color: #1a202c;
+}
+
+.english-text {
+  font-size: 1.1em;
+  line-height: 1.7;
+  color: #2d3748;
+}
+
+.verse-number {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 0.9em;
+  margin: 0 0.3em;
+}
+
+.image-container {
+  text-align: center;
+  margin: 2em auto;
+  padding: 1em;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.image-caption {
+  margin-top: 0.8em;
+  font-style: italic;
+  color: #718096;
+  font-size: 0.9em;
+}
+
+/* Landscape mode - side by side */
+@media (min-width: 1000px) {
+  .content-layout {
+    display: flex;
+    gap: 2em;
+  }
+
+  .text-section {
+    flex: 1;
+  }
+
+  .hebrew-section {
+    margin-right: 0;
+  }
+}
+
+/* Kobo-specific optimizations */
+@media screen and (color: 8) {
+  body {
+    background: #faf9f5;
+  }
+
+  .header-section {
+    background: #667eea;
+  }
+
+  .hebrew-section,
+  .english-section {
+    background: white;
+  }
+}

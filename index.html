@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tanakh EPUB for Kobo E-Readers</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+          sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.95;
+      }
+
+      .content {
+        padding: 40px 30px;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .feature {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .feature-icon {
+        font-size: 2em;
+        margin-bottom: 10px;
+      }
+
+      .feature h3 {
+        font-size: 1.1em;
+        margin-bottom: 5px;
+        color: #667eea;
+      }
+
+      .download-section {
+        text-align: center;
+        padding: 30px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        margin-bottom: 30px;
+      }
+
+      .download-btn {
+        display: inline-block;
+        padding: 15px 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 1.2em;
+        font-weight: bold;
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        margin: 10px;
+      }
+
+      .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .info-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #fff9f0;
+        border-radius: 10px;
+        border-left: 4px solid #ffa500;
+      }
+
+      .info-section h2 {
+        color: #764ba2;
+        margin-bottom: 15px;
+      }
+
+      .info-section ul {
+        margin-left: 20px;
+      }
+
+      .info-section li {
+        margin-bottom: 8px;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .footer a {
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📖 Tanakh EPUB Reader</h1>
+        <p>Hebrew Bible for Kobo E-Readers</p>
+      </div>
+
+      <div class="content">
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">🌍</div>
+            <h3>Complete Tanakh</h3>
+            <p>All 39 books of the Hebrew Bible</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📱</div>
+            <h3>Responsive Layout</h3>
+            <p>Adapts to portrait & landscape</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🎨</div>
+            <h3>Custom Artwork</h3>
+            <p>Beautiful biblical illustrations</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔤</div>
+            <h3>Hebrew & English</h3>
+            <p>Side-by-side translations</p>
+          </div>
+        </div>
+
+        <div class="download-section">
+          <h2>📥 Download for Your E-Reader</h2>
+          <p style="margin-bottom: 20px">Optimized for Kobo Libra Colour and other e-readers</p>
+          <a
+            href="https://github.com/posix4e/hebrew-bible-ereader/releases/latest/download/tanakh.epub"
+            class="download-btn"
+          >
+            Download Tanakh EPUB
+          </a>
+        </div>
+
+        <div class="info-section">
+          <h2>📚 What's Included</h2>
+          <ul>
+            <li><strong>Torah (תורה)</strong> - Genesis through Deuteronomy</li>
+            <li>
+              <strong>Nevi'im (נביאים)</strong> - Prophets including Joshua, Samuel, Kings, Isaiah,
+              Jeremiah
+            </li>
+            <li>
+              <strong>Ketuvim (כתובים)</strong> - Writings including Psalms, Proverbs, Job, Daniel
+            </li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h2>🚀 How to Use</h2>
+          <ol>
+            <li>Download the EPUB file above</li>
+            <li>Connect your Kobo to your computer via USB</li>
+            <li>Copy the EPUB to your Kobo's root directory</li>
+            <li>Safely eject and enjoy reading!</li>
+          </ol>
+        </div>
+
+        <div class="info-section">
+          <h2>✨ Features</h2>
+          <ul>
+            <li>Clean Hebrew text with vowel points (nikud)</li>
+            <li>The Koren Jerusalem Bible English translation</li>
+            <li>Responsive layout - stacked in portrait, side-by-side in landscape</li>
+            <li>Embedded Hebrew fonts for proper display</li>
+            <li>Custom artwork at significant biblical moments</li>
+            <li>Hierarchical table of contents for easy navigation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          Generated with ❤️ using
+          <a href="https://www.sefaria.org" target="_blank">Sefaria.org</a> texts
+          <br />
+          <a href="https://github.com/posix4e/hebrew-bible-ereader" target="_blank"
+            >View on GitHub</a
+          >
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

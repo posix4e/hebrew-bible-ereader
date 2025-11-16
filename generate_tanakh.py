@@ -6,12 +6,14 @@ Generates a responsive Hebrew/English Bible with custom artwork
 
 import time
 import argparse
+import re
 from pathlib import Path
 from typing import Dict, Optional
 
 import requests
 from ebooklib import epub
 from PIL import Image
+from jinja2 import Environment, FileSystemLoader
 import io
 
 
@@ -75,162 +77,40 @@ class TanakhGenerator:
             ("Ezekiel", 37): "mysticalcrucifixion.jpg",  # Valley of dry bones vision
         }
 
+        # Set up Jinja2 templates
+        self.template_env = Environment(loader=FileSystemLoader("templates"), autoescape=True)
+
     def get_css(self) -> str:
-        """Get responsive CSS for Kobo Libra Colour"""
+        """Load CSS from template file"""
+        css_path = Path("templates/style.css")
+        if css_path.exists():
+            return css_path.read_text()
+        else:
+            # Fallback to inline CSS if template not found
+            return self._get_fallback_css()
+
+    def _get_fallback_css(self) -> str:
+        """Fallback CSS if template file not found"""
         return """
-        @font-face {
-            font-family: 'NotoSerifHebrew';
-            src: url('fonts/NotoSerifHebrew-Regular.ttf');
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        body {
-            font-family: Georgia, serif;
-            line-height: 1.6;
-            margin: 1em;
-            background: linear-gradient(to bottom, #faf9f5 0%, #f5f3eb 100%);
-        }
-
-        .chapter-container {
-            margin: 0 auto;
-            padding: 1em;
-        }
-
-        .header-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5em;
-            border-radius: 12px;
-            margin-bottom: 1.5em;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        h1, h2 {
-            margin: 0;
-        }
-
-        h1 {
-            font-size: 1.8em;
-            margin-bottom: 0.2em;
-        }
-
-        h2 {
-            font-size: 1.3em;
-            opacity: 0.95;
-        }
-
-        .content-layout {
-            display: block;
-        }
-
-        .text-section {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5em;
-            margin-bottom: 1.5em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .hebrew-section {
-            direction: rtl;
-            text-align: right;
-            background: linear-gradient(to right, #f0f4ff, #ffffff);
-        }
-
-        .english-section {
-            direction: ltr;
-            text-align: left;
-            background: linear-gradient(to left, #fff9f0, #ffffff);
-        }
-
-        .hebrew-text {
-            font-family: 'NotoSerifHebrew', serif;
-            font-size: 1.3em;
-            line-height: 1.8;
-            color: #1a202c;
-        }
-
-        .english-text {
-            font-size: 1.1em;
-            line-height: 1.7;
-            color: #2d3748;
-        }
-
-        .verse-number {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 0.9em;
-            margin: 0 0.3em;
-        }
-
-
-        .image-container {
-            text-align: center;
-            margin: 2em auto;
-            padding: 1em;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .image-caption {
-            margin-top: 0.8em;
-            font-style: italic;
-            color: #718096;
-            font-size: 0.9em;
-        }
-
-        /* Landscape mode - side by side */
-        @media (min-width: 1000px) {
-            .content-layout {
-                display: flex;
-                gap: 2em;
-            }
-
-            .text-section {
-                flex: 1;
-            }
-
-            .hebrew-section {
-                margin-right: 0;
-            }
-        }
-
-        /* Kobo-specific optimizations */
-        @media screen and (color: 8) {
-            body {
-                background: #faf9f5;
-            }
-
-            .header-section {
-                background: #667eea;
-            }
-
-            .hebrew-section, .english-section {
-                background: white;
-            }
-        }
+        body { font-family: Georgia, serif; line-height: 1.6; margin: 1em; }
+        .chapter-container { margin: 0 auto; padding: 1em; }
+        .hebrew-text { direction: rtl; text-align: right; font-size: 1.3em; }
+        .english-text { direction: ltr; text-align: left; font-size: 1.1em; }
+        .verse-number { font-weight: bold; color: #667eea; font-size: 0.9em; margin: 0 0.3em; }
         """
 
     def fetch_text(self, book: str, chapter: int) -> Dict:
         """Fetch Hebrew and English text from Sefaria API"""
         url = f"https://www.sefaria.org/api/texts/{book}.{chapter}"
         params = {
+            "ven": "The_Koren_Jerusalem_Bible",  # Clean English version
+            "vhe": "Tanach_with_Nikkud",  # Clean Hebrew with vowels
             "commentary": 0,
             "context": 1,
             "pad": 0,
             "wrapLinks": 0,
             "wrapNamedEntities": 0,
-            "multiple": 0,
-            "stripmarkers": 0,
-            "useTextFamily": "Koren Jerusalem Bible",
+            "stripmarkers": 1,
         }
 
         max_retries = 3
@@ -262,14 +142,69 @@ class TanakhGenerator:
         if isinstance(english_text, str):
             english_text = [english_text]
 
-        # Create chapter content
+        # Clean and filter verses (minimal cleaning needed with clean API versions)
+        hebrew_verses = []
+        for v in hebrew_text:
+            if v:
+                # Just in case there are any remaining HTML artifacts
+                clean_v = re.sub(r"<[^>]+>", "", v)  # Remove any HTML tags
+                clean_v = re.sub(r"\s+", " ", clean_v)  # Normalize whitespace
+                clean_v = clean_v.strip()
+                if clean_v:  # Only add non-empty verses
+                    hebrew_verses.append(clean_v)
+
+        english_verses = []
+        for v in english_text:
+            if v:
+                # Just in case there are any remaining HTML artifacts
+                clean_v = re.sub(r"<[^>]+>", "", v)  # Remove any HTML tags
+                clean_v = re.sub(r"\s+", " ", clean_v)  # Normalize whitespace
+                clean_v = clean_v.strip()
+                if clean_v:  # Only add non-empty verses
+                    english_verses.append(clean_v)
+
+        # Create chapter
         chapter = epub.EpubHtml(
             title=f"{book_name} {chapter_num}",
             file_name=f"{book_name}_{chapter_num}.xhtml",
             lang="he",
         )
 
-        html_content = f"""
+        # Check for image
+        image_file = self.image_map.get((book_name, chapter_num))
+
+        # Try to use template
+        try:
+            template = self.template_env.get_template("chapter.html")
+            html_content = template.render(
+                book_name=book_name,
+                hebrew_name=hebrew_name,
+                chapter_num=chapter_num,
+                hebrew_chapter_num=self.to_hebrew_numeral(chapter_num),
+                image_file=image_file,
+                hebrew_verses=hebrew_verses,
+                english_verses=english_verses,
+            )
+        except Exception:
+            # Fallback to inline HTML if template not found
+            html_content = self._create_fallback_html(
+                book_name, hebrew_name, chapter_num, image_file, hebrew_verses, english_verses
+            )
+
+        chapter.content = html_content
+        return chapter
+
+    def _create_fallback_html(
+        self,
+        book_name: str,
+        hebrew_name: str,
+        chapter_num: int,
+        image_file: Optional[str],
+        hebrew_verses: list,
+        english_verses: list,
+    ) -> str:
+        """Fallback HTML generation if template not found"""
+        html = f"""
         <div class="chapter-container">
             <div class="header-section">
                 <h1>{book_name} {chapter_num}</h1>
@@ -277,39 +212,30 @@ class TanakhGenerator:
             </div>
         """
 
-        # Add image if mapped for this chapter
-        if (book_name, chapter_num) in self.image_map:
-            image_file = self.image_map[(book_name, chapter_num)]
-            html_content += f"""
+        if image_file:
+            html += f"""
             <div class="image-container">
                 <img src="images/{image_file}" alt="{book_name} Chapter {chapter_num}"/>
                 <div class="image-caption">{book_name} Chapter {chapter_num}</div>
             </div>
             """
 
-        # Add text content
-        html_content += '<div class="content-layout">'
+        html += '<div class="content-layout">'
 
         # Hebrew section
-        html_content += '<div class="text-section hebrew-section"><div class="hebrew-text">'
-        for i, verse in enumerate(hebrew_text, 1):
-            if verse:
-                html_content += f'<span class="verse-number">{i}</span>{verse} '
-        html_content += "</div></div>"
+        html += '<div class="text-section hebrew-section"><div class="hebrew-text">'
+        for i, verse in enumerate(hebrew_verses, 1):
+            html += f'<span class="verse-number">{i}</span>{verse} '
+        html += "</div></div>"
 
         # English section
-        html_content += '<div class="text-section english-section"><div class="english-text">'
-        for i, verse in enumerate(english_text, 1):
-            if verse:
-                html_content += f'<span class="verse-number">{i}</span>{verse} '
-        html_content += "</div></div>"
+        html += '<div class="text-section english-section"><div class="english-text">'
+        for i, verse in enumerate(english_verses, 1):
+            html += f'<span class="verse-number">{i}</span>{verse} '
+        html += "</div></div>"
 
-        html_content += "</div>"
-
-        html_content += "</div>"
-        chapter.content = html_content
-
-        return chapter
+        html += "</div></div>"
+        return html
 
     def to_hebrew_numeral(self, num: int) -> str:
         """Convert number to Hebrew numeral"""

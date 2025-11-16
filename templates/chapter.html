@@ -1,0 +1,29 @@
+<div class="chapter-container">
+  <div class="header-section">
+    <h1>{{book_name}} {{chapter_num}}</h1>
+    <h2>{{hebrew_name}} פרק {{hebrew_chapter_num}}</h2>
+  </div>
+
+  {% if image_file %}
+  <div class="image-container">
+    <img src="images/{{image_file}}" alt="{{book_name}} Chapter {{chapter_num}}" />
+    <div class="image-caption">{{book_name}} Chapter {{chapter_num}}</div>
+  </div>
+  {% endif %}
+
+  <div class="content-layout">
+    <div class="text-section hebrew-section">
+      <div class="hebrew-text">
+        {% for verse in hebrew_verses %}
+        <span class="verse-number">{{loop.index}}</span>{{verse}} {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-section english-section">
+      <div class="english-text">
+        {% for verse in english_verses %}
+        <span class="verse-number">{{loop.index}}</span>{{verse}} {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

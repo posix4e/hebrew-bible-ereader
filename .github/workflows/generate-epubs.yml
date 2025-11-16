@@ -19,6 +19,12 @@ jobs:
 
     permissions:
       contents: write
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - name: Checkout repository
@@ -101,3 +107,26 @@ jobs:
         done
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Deploy to GitHub Pages (only on main branch push)
+    - name: Setup Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/configure-pages@v4
+
+    - name: Copy EPUB to Pages directory
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        mkdir -p _site
+        cp index.html _site/
+        cp output/tanakh.epub _site/tanakh.epub || true
+
+    - name: Upload Pages artifact
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '_site'
+
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      id: deployment
+      uses: actions/deploy-pages@v4
