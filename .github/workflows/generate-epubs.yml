@@ -79,9 +79,8 @@ jobs:
         echo "Generating base Torah versions..."
         echo "=========================================="
 
-        # Base versions (no commentary)
-        python torah_commentary_generator.py $MODE_FLAG --orientation portrait -o output/torah_portrait.epub
-        python torah_commentary_generator.py $MODE_FLAG --orientation landscape -o output/torah_landscape.epub
+        # Base unified responsive version (adapts to orientation)
+        python torah_unified_responsive.py $MODE_FLAG -o output/torah.epub
 
         echo "=========================================="
         echo "Generating special editions..."
