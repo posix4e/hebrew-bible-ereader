@@ -1,0 +1,184 @@
+name: Generate Hebrew Bible EPUBs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate all EPUB versions
+      run: |
+        mkdir -p output
+
+        echo "=========================================="
+        echo "Generating base Torah versions..."
+        echo "=========================================="
+
+        # Base versions (no commentary)
+        python torah_commentary_generator.py --orientation portrait -o output/torah_portrait.epub
+        python torah_commentary_generator.py --orientation landscape -o output/torah_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Rashi..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
+        python torah_commentary_generator.py --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Ibn Ezra..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
+        python torah_commentary_generator.py --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Ramban..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
+        python torah_commentary_generator.py --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Sforno..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
+        python torah_commentary_generator.py --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
+
+        echo "=========================================="
+        echo "Generating special editions..."
+        echo "=========================================="
+
+        # Hierarchical TOC version
+        python torah_hierarchical_toc.py
+        mv torah_hierarchical.epub output/
+
+        # Illustrated landscape version
+        python torah_illustrated_landscape.py
+        mv torah_illustrated_landscape_sample.epub output/
+
+        # List all generated files
+        echo "=========================================="
+        echo "Generated EPUBs:"
+        echo "=========================================="
+        ls -lh output/*.epub
+
+    - name: Upload EPUBs as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: torah-epubs-${{ github.sha }}
+        path: output/*.epub
+        retention-days: 90
+
+    - name: Create Release (on push to main)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: build-${{ github.run_number }}
+        release_name: Torah EPUBs - Build ${{ github.run_number }}
+        body: |
+          Automated build of Torah EPUBs from commit ${{ github.sha }}
+
+          ## 📚 Available Editions
+
+          ### Base Torah (no commentary)
+          - `torah_portrait.epub` - Portrait optimized
+          - `torah_landscape.epub` - Landscape optimized
+
+          ### Torah with Rashi
+          - `torah_rashi_portrait.epub` - Portrait with Rashi commentary
+          - `torah_rashi_landscape.epub` - Landscape with Rashi commentary
+
+          ### Torah with Ibn Ezra
+          - `torah_ibn_ezra_portrait.epub` - Portrait with Ibn Ezra
+          - `torah_ibn_ezra_landscape.epub` - Landscape with Ibn Ezra
+
+          ### Torah with Ramban
+          - `torah_ramban_portrait.epub` - Portrait with Ramban
+          - `torah_ramban_landscape.epub` - Landscape with Ramban
+
+          ### Torah with Sforno
+          - `torah_sforno_portrait.epub` - Portrait with Sforno
+          - `torah_sforno_landscape.epub` - Landscape with Sforno
+
+          ### Special Editions
+          - `torah_hierarchical.epub` - Hierarchical TOC navigation
+          - `torah_illustrated_landscape_sample.epub` - Illustrated with artistic themes
+
+          All commentaries are displayed as color-coded vertical sections, not footnotes.
+          Portrait versions stack Hebrew, English, and commentary vertically.
+          Landscape versions display Hebrew and English side-by-side with commentary below.
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Assets
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        for file in output/*.epub; do
+          filename=$(basename "$file")
+          echo "Uploading $filename..."
+          gh release upload "build-${{ github.run_number }}" "$file" --clobber
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-pages:
+    needs: generate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: '.'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
