@@ -15,6 +15,7 @@ body {
 .chapter-container {
   margin: 0 auto;
   padding: 1em;
+  max-width: 800px;
 }
 
 .header-section {
@@ -24,6 +25,7 @@ body {
   border-radius: 12px;
   margin-bottom: 1.5em;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 h1,
@@ -39,10 +41,6 @@ h1 {
 h2 {
   font-size: 1.3em;
   opacity: 0.95;
-}
-
-.content-layout {
-  display: block;
 }
 
 .text-section {
@@ -87,15 +85,6 @@ h2 {
   min-width: 2em;
 }
 
-.verse-wrapper {
-  margin-bottom: 0.5em;
-  line-height: 1.8;
-}
-
-.verse-content {
-  display: inline;
-}
-
 .image-container {
   text-align: center;
   margin: 2em auto;
@@ -103,6 +92,7 @@ h2 {
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
 }
 
 .image-container img {
@@ -118,58 +108,10 @@ h2 {
   font-size: 0.9em;
 }
 
-/* Landscape mode - side by side Hebrew and English */
-@media (orientation: landscape) and (min-width: 800px) {
-  .content-layout {
-    display: flex;
-    gap: 1.5em;
-    align-items: start;
-  }
-
-  .text-section {
-    flex: 1;
-    margin-bottom: 1em;
-  }
-
-  .hebrew-section {
-    margin-right: 0;
-    border-right: 2px solid #e2e8f0;
-    padding-right: 1.5em;
-  }
-
-  .english-section {
-    padding-left: 1.5em;
-  }
-
-  /* Ensure both columns align at top */
-  .hebrew-text,
-  .english-text {
-    margin-top: 0;
-  }
-}
-
-/* Alternative for devices that don't support orientation */
-@media (min-aspect-ratio: 4/3) and (min-width: 800px) {
-  .content-layout {
-    display: flex;
-    gap: 1.5em;
-    align-items: start;
-  }
-
-  .text-section {
-    flex: 1;
-    margin-bottom: 1em;
-  }
-
-  .hebrew-section {
-    margin-right: 0;
-    border-right: 2px solid #e2e8f0;
-    padding-right: 1.5em;
-  }
-
-  .english-section {
-    padding-left: 1.5em;
-  }
+/* Page break for e-readers */
+.page-break {
+  page-break-after: always;
+  break-after: page;
 }
 
 /* Kobo-specific optimizations */
@@ -188,34 +130,16 @@ h2 {
   }
 }
 
-/* Kobo Libra Colour specific - landscape mode */
-@media screen and (min-device-width: 1264px) and (orientation: landscape) {
-  .content-layout {
-    display: flex !important;
-    gap: 1.5em;
+/* Ensure good readability on e-ink */
+@media (monochrome) {
+  .verse-number {
+    font-weight: bold;
+    text-decoration: underline;
   }
 
-  .text-section {
-    flex: 1;
-    width: 48%;
-  }
-
-  .hebrew-section {
-    order: 2; /* Hebrew on right side in landscape */
-  }
-
-  .english-section {
-    order: 1; /* English on left side in landscape */
-  }
-
-  /* Synchronize verse alignment */
-  .hebrew-text,
-  .english-text {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .verse-wrapper {
-    margin-bottom: 0.5em;
+  .header-section {
+    border: 2px solid #333;
+    background: #f0f0f0;
+    color: #000;
   }
 }

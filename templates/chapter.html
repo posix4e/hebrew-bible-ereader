@@ -11,27 +11,21 @@
   </div>
   {% endif %}
 
-  <div class="content-layout">
-    <div class="text-section hebrew-section">
-      <div class="hebrew-text">
-        {% for verse in hebrew_verses %}
-        <div class="verse-wrapper">
-          <span class="verse-number">{{loop.index}}</span>
-          <span class="verse-content">{{verse}}</span>
-        </div>
-        {% endfor %}
-      </div>
+  <!-- Hebrew on its own page -->
+  <div class="text-section hebrew-section">
+    <div class="hebrew-text">
+      {% for verse in hebrew_verses %}
+      <span class="verse-number">{{loop.index}}</span>{{verse}} {% endfor %}
     </div>
+  </div>
 
-    <div class="text-section english-section">
-      <div class="english-text">
-        {% for verse in english_verses %}
-        <div class="verse-wrapper">
-          <span class="verse-number">{{loop.index}}</span>
-          <span class="verse-content">{{verse}}</span>
-        </div>
-        {% endfor %}
-      </div>
+  <div class="page-break"></div>
+
+  <!-- English on its own page -->
+  <div class="text-section english-section">
+    <div class="english-text">
+      {% for verse in english_verses %}
+      <span class="verse-number">{{loop.index}}</span>{{verse}} {% endfor %}
     </div>
   </div>
 </div>
