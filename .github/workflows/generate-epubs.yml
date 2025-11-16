@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:  # Allow manual trigger
+    inputs:
+      include_commentaries:
+        description: 'Include commentary editions (slower)'
+        required: false
+        type: boolean
+        default: false
+      test_mode:
+        description: 'Test mode (only 3 chapters per book)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   generate-and-deploy:
@@ -42,67 +53,104 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Generate all EPUB versions
+    - name: Set generation mode
+      id: mode
+      run: |
+        if [[ "${{ github.event.inputs.test_mode }}" == "true" ]]; then
+          echo "MODE=test" >> $GITHUB_OUTPUT
+          echo "Running in TEST mode (3 chapters per book)"
+        else
+          echo "MODE=full" >> $GITHUB_OUTPUT
+          echo "Running in FULL mode (all chapters)"
+        fi
+
+    - name: Generate base EPUB versions
       run: |
         mkdir -p output
+
+        # Determine mode flag
+        if [[ "${{ steps.mode.outputs.MODE }}" == "full" ]]; then
+          MODE_FLAG="--full"
+        else
+          MODE_FLAG=""
+        fi
 
         echo "=========================================="
         echo "Generating base Torah versions..."
         echo "=========================================="
 
-        # Base versions (no commentary) - FULL Torah
-        python torah_commentary_generator.py --full --orientation portrait -o output/torah_portrait.epub
-        python torah_commentary_generator.py --full --orientation landscape -o output/torah_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Rashi..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py --full --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
-        python torah_commentary_generator.py --full --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Ibn Ezra..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py --full --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
-        python torah_commentary_generator.py --full --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Ramban..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py --full --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
-        python torah_commentary_generator.py --full --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
-
-        echo "=========================================="
-        echo "Generating Torah with Sforno..."
-        echo "=========================================="
-
-        python torah_commentary_generator.py --full --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
-        python torah_commentary_generator.py --full --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
+        # Base versions (no commentary)
+        python torah_commentary_generator.py $MODE_FLAG --orientation portrait -o output/torah_portrait.epub
+        python torah_commentary_generator.py $MODE_FLAG --orientation landscape -o output/torah_landscape.epub
 
         echo "=========================================="
         echo "Generating special editions..."
         echo "=========================================="
 
-        # Hierarchical TOC version (full)
-        python torah_hierarchical_toc.py --full
+        # Hierarchical TOC version
+        python torah_hierarchical_toc.py $MODE_FLAG
         mv torah_hierarchical.epub output/
 
-        # Illustrated landscape version (full)
-        python torah_illustrated_landscape.py --full
-        mv torah_illustrated_landscape_full.epub output/
+        # Illustrated landscape version
+        python torah_illustrated_landscape.py $MODE_FLAG
+        if [[ -f torah_illustrated_landscape_full.epub ]]; then
+          mv torah_illustrated_landscape_full.epub output/
+        else
+          mv torah_illustrated_landscape_sample.epub output/
+        fi
 
-        # Illustrated bilingual version (full)
-        python torah_illustrated_bilingual.py --full
+        # Illustrated bilingual version with dedication
+        python torah_illustrated_bilingual.py $MODE_FLAG
         mv torah_illustrated_bilingual.epub output/
 
         # List all generated files
         echo "=========================================="
-        echo "Generated EPUBs:"
+        echo "Base EPUBs generated:"
         echo "=========================================="
         ls -lh output/*.epub
+
+    - name: Generate commentary editions (if requested)
+      if: github.event.inputs.include_commentaries == 'true'
+      run: |
+        # Determine mode flag
+        if [[ "${{ steps.mode.outputs.MODE }}" == "full" ]]; then
+          MODE_FLAG="--full"
+        else
+          MODE_FLAG=""
+        fi
+
+        echo "=========================================="
+        echo "Generating Torah with Rashi..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py $MODE_FLAG --commentary rashi --orientation portrait -o output/torah_rashi_portrait.epub
+        python torah_commentary_generator.py $MODE_FLAG --commentary rashi --orientation landscape -o output/torah_rashi_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Ibn Ezra..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py $MODE_FLAG --commentary ibn_ezra --orientation portrait -o output/torah_ibn_ezra_portrait.epub
+        python torah_commentary_generator.py $MODE_FLAG --commentary ibn_ezra --orientation landscape -o output/torah_ibn_ezra_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Ramban..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py $MODE_FLAG --commentary ramban --orientation portrait -o output/torah_ramban_portrait.epub
+        python torah_commentary_generator.py $MODE_FLAG --commentary ramban --orientation landscape -o output/torah_ramban_landscape.epub
+
+        echo "=========================================="
+        echo "Generating Torah with Sforno..."
+        echo "=========================================="
+
+        python torah_commentary_generator.py $MODE_FLAG --commentary sforno --orientation portrait -o output/torah_sforno_portrait.epub
+        python torah_commentary_generator.py $MODE_FLAG --commentary sforno --orientation landscape -o output/torah_sforno_landscape.epub
+
+        echo "=========================================="
+        echo "Commentary EPUBs generated:"
+        echo "=========================================="
+        ls -lh output/*_portrait.epub output/*_landscape.epub | grep -E "(rashi|ibn_ezra|ramban|sforno)"
 
     - name: Upload EPUBs as artifacts
       uses: actions/upload-artifact@v4
@@ -129,29 +177,16 @@ jobs:
           - `torah_portrait.epub` - Portrait optimized
           - `torah_landscape.epub` - Landscape optimized
 
-          ### Torah with Rashi
-          - `torah_rashi_portrait.epub` - Portrait with Rashi commentary
-          - `torah_rashi_landscape.epub` - Landscape with Rashi commentary
-
-          ### Torah with Ibn Ezra
-          - `torah_ibn_ezra_portrait.epub` - Portrait with Ibn Ezra
-          - `torah_ibn_ezra_landscape.epub` - Landscape with Ibn Ezra
-
-          ### Torah with Ramban
-          - `torah_ramban_portrait.epub` - Portrait with Ramban
-          - `torah_ramban_landscape.epub` - Landscape with Ramban
-
-          ### Torah with Sforno
-          - `torah_sforno_portrait.epub` - Portrait with Sforno
-          - `torah_sforno_landscape.epub` - Landscape with Sforno
-
           ### Special Editions
           - `torah_hierarchical.epub` - Hierarchical TOC navigation
-          - `torah_illustrated_landscape_sample.epub` - Illustrated with artistic themes
+          - `torah_illustrated_landscape_*.epub` - Illustrated with artistic themes
+          - `torah_illustrated_bilingual.epub` - Bilingual with dedication to Bruno "DaVenzia" Naphtali
 
-          All commentaries are displayed as color-coded vertical sections, not footnotes.
-          Portrait versions stack Hebrew, English, and commentary vertically.
-          Landscape versions display Hebrew and English side-by-side with commentary below.
+          ### Commentary Editions
+          Commentary editions are generated only when manually triggered with the `include_commentaries` option.
+
+          All editions display Hebrew and English text with proper RTL support.
+          Portrait versions stack content vertically; landscape versions use side-by-side layout.
         draft: false
         prerelease: false
 
