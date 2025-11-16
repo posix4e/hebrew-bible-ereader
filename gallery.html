@@ -106,6 +106,13 @@
         font-size: 0.85em;
         line-height: 1.4;
       }
+      .chapter-placement {
+        color: #764ba2;
+        font-size: 0.8em;
+        margin-top: 5px;
+        font-style: italic;
+        font-weight: 500;
+      }
       .back-link {
         display: inline-block;
         margin-bottom: 20px;
@@ -235,6 +242,21 @@
     </div>
 
     <script>
+      // Chapter placement data - shows where each image appears in the EPUB
+      const placementMap = {};
+
+      // Load complete placement data and then render gallery
+      let placementDataLoaded = fetch('chagall_placement_map.json')
+        .then(response => response.json())
+        .then(data => {
+          Object.assign(placementMap, data);
+          console.log('Loaded placement data for', Object.keys(placementMap).length, 'images');
+        })
+        .catch(error => {
+          console.error('Error loading placement map:', error);
+          // Continue without placement data if file not found
+        });
+
       // Image data organized by biblical book
       const imageData = {
         Genesis: [
@@ -991,6 +1013,10 @@
           html += `<div class="image-grid">`;
 
           images.forEach((img) => {
+            // Get chapter placement if available
+            const placement = placementMap[img.file];
+            const placementText = placement ? `<div class="chapter-placement">📍 ${placement.join(", ")}</div>` : '';
+
             html += `
                         <div class="image-card">
                             <img src="images/${img.file}" alt="${
@@ -1002,6 +1028,7 @@
                             <div class="image-info">
                                 <div class="image-title">${img.title}</div>
                                 <div class="image-description">${img.desc}</div>
+                                ${placementText}
                             </div>
                         </div>
                     `;
@@ -1035,8 +1062,10 @@
         }
       };
 
-      // Generate gallery on load
-      generateGallery();
+      // Generate gallery after placement data loads
+      placementDataLoaded.then(() => {
+        generateGallery();
+      });
     </script>
   </body>
 </html>

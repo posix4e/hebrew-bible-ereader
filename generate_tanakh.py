@@ -20,6 +20,10 @@ import io
 
 class TanakhGenerator:
     def __init__(self):
+        # Initialize tracking for Chagall images
+        self.all_chagall_images = []  # Flat list of all images for distribution
+        self.chagall_index = 0  # Track which image to use next
+
         # Load Chagall images configuration
         self.chagall_images = self._load_chagall_images()
 
@@ -103,15 +107,16 @@ class TanakhGenerator:
                 # Check if the image file actually exists
                 img_path = Path("images") / item["filename"]
                 if img_path.exists():
-                    chagall_map[book].append(
-                        {
-                            "filename": item["filename"],
-                            "title": item["title"],
-                            "path": str(img_path),
-                        }
-                    )
+                    image_data = {
+                        "filename": item["filename"],
+                        "title": item["title"],
+                        "path": str(img_path),
+                        "book": book,
+                    }
+                    chagall_map[book].append(image_data)
+                    self.all_chagall_images.append(image_data)
 
-            print(f"  ✓ Loaded {sum(len(imgs) for imgs in chagall_map.values())} Chagall images")
+            print(f"  ✓ Loaded {len(self.all_chagall_images)} Chagall images")
 
         return chagall_map
 
@@ -209,35 +214,38 @@ class TanakhGenerator:
         image_file = self.image_map.get((book_name, chapter_num))
         chagall_image = None
 
-        # If it's the first chapter of a book with Chagall images, use one
-        if chapter_num == 1 and book_name in self.chagall_images:
-            chagall_images = self.chagall_images[book_name]
-            if chagall_images:
-                # Pick the first available Chagall image for this book
-                chagall_image = chagall_images[0]
-                if not image_file:  # Only use Chagall if no original artwork
-                    image_file = chagall_image["filename"]
+        # If no original artwork, distribute Chagall images evenly
+        if not image_file and self.all_chagall_images:
+            # Add images at regular intervals (roughly every 5-7 chapters)
+            # But always include first chapter of each book
+            should_add_image = False
 
-        # For certain special chapters, use specific Chagall images
-        elif book_name in self.chagall_images:
-            # Map specific chapters to relevant Chagall images based on content
-            special_chapters = {
-                ("Genesis", 22): "abraham",  # Abraham and Isaac
-                ("Genesis", 28): "jacob",  # Jacob's ladder
-                ("Exodus", 14): "moses",  # Red Sea
-                ("I_Samuel", 17): "david",  # David and Goliath
-            }
+            # Always add image to first chapter of each book
+            if chapter_num == 1:
+                should_add_image = True
+            # Add image every 6 chapters
+            elif chapter_num % 6 == 0:
+                should_add_image = True
+            # Special chapters that should have images
+            elif (book_name, chapter_num) in [
+                ("Genesis", 22),  # Abraham and Isaac
+                ("Genesis", 28),  # Jacob's ladder
+                ("Exodus", 14),  # Red Sea
+                ("Exodus", 20),  # Ten Commandments
+                ("I_Samuel", 17),  # David and Goliath
+                ("I_Kings", 3),  # Solomon's wisdom
+                ("Psalms", 23),  # The Lord is my shepherd
+                ("Job", 1),  # Job's trials
+            ]:
+                should_add_image = True
 
-            key = (book_name, chapter_num)
-            if key in special_chapters:
-                keyword = special_chapters[key]
-                chagall_images = self.chagall_images[book_name]
-                for img in chagall_images:
-                    if keyword.lower() in img["title"].lower():
-                        if not image_file:  # Only use if no original artwork
-                            image_file = img["filename"]
-                            chagall_image = img
-                        break
+            if should_add_image:
+                # Use the next image in our list, cycling through all images
+                chagall_image = self.all_chagall_images[
+                    self.chagall_index % len(self.all_chagall_images)
+                ]
+                image_file = chagall_image["filename"]
+                self.chagall_index += 1
 
         # Try to use template
         try:
