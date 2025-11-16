@@ -14,17 +14,22 @@ body {
 
 .chapter-container {
   margin: 0 auto;
-  padding: 1em;
+  padding: 0.5em;
   max-width: 800px;
+}
+
+/* Title page specific container */
+.title-page {
+  page-break-inside: avoid;
 }
 
 .header-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 1.5em;
-  border-radius: 12px;
-  margin-bottom: 1.5em;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2em 1em;
+  border-radius: 8px;
+  margin: 20% auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -34,13 +39,44 @@ h2 {
 }
 
 h1 {
-  font-size: 1.8em;
-  margin-bottom: 0.2em;
+  font-size: 1.5em;
+  margin-bottom: 0.3em;
 }
 
 h2 {
-  font-size: 1.3em;
+  font-size: 1.2em;
   opacity: 0.95;
+}
+
+/* Compact versions for when header/image appear on first text page */
+.header-section.compact {
+  padding: 0.7em;
+  margin-bottom: 0.7em;
+  max-height: 15vh;
+}
+
+.header-section.compact h1 {
+  font-size: 1.1em;
+  margin-bottom: 0.1em;
+}
+
+.header-section.compact h2 {
+  font-size: 0.95em;
+}
+
+.image-container.compact {
+  margin: 0.5em auto;
+  padding: 0.3em;
+  max-width: 80%;
+}
+
+.image-container.compact img {
+  max-height: 30vh;
+}
+
+.image-container.compact .image-caption {
+  font-size: 0.8em;
+  margin-top: 0.3em;
 }
 
 .text-section {
@@ -65,14 +101,14 @@ h2 {
 
 .hebrew-text {
   font-family: "NotoSerifHebrew", serif;
-  font-size: 1.3em;
-  line-height: 1.8;
+  font-size: 1.6em;
+  line-height: 2.2;
   color: #1a202c;
 }
 
 .english-text {
-  font-size: 1.1em;
-  line-height: 1.7;
+  font-size: 1.4em;
+  line-height: 2.1;
   color: #2d3748;
 }
 
@@ -87,25 +123,31 @@ h2 {
 
 .image-container {
   text-align: center;
-  margin: 2em auto;
-  padding: 1em;
+  margin: 0.5em auto;
+  padding: 0.3em;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
+  max-height: 75vh;
+  overflow: hidden;
+  page-break-inside: avoid;
 }
 
 .image-container img {
   max-width: 100%;
+  max-height: 70vh;
+  width: auto;
   height: auto;
-  border-radius: 8px;
+  border-radius: 6px;
+  object-fit: contain;
 }
 
 .image-caption {
-  margin-top: 0.8em;
+  margin-top: 0.3em;
   font-style: italic;
   color: #718096;
-  font-size: 0.9em;
+  font-size: 0.75em;
 }
 
 /* Page break for e-readers */
@@ -128,6 +170,58 @@ h2 {
   .english-section {
     background: white;
   }
+}
+
+/* Page header for individual pages */
+.page-header {
+  font-size: 1em;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.hebrew-section .page-header {
+  text-align: right;
+  direction: rtl;
+}
+
+.english-section .page-header {
+  text-align: left;
+  direction: ltr;
+}
+
+/* Full page image display */
+.image-page {
+  text-align: center;
+  padding: 1em;
+}
+
+.image-container.full-page {
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.image-container.full-page img {
+  max-width: 100%;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.image-container.full-page .image-caption {
+  text-align: center;
+  margin-top: 0.5em;
+  font-size: 0.9em;
+}
+
+/* Blank page for maintaining even page count */
+.blank-page {
+  height: 1px;
 }
 
 /* Ensure good readability on e-ink */
