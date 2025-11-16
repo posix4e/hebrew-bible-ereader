@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 from typing import Dict, Optional
 import json
-import random
 
 import requests
 from ebooklib import epub
@@ -343,6 +342,13 @@ class TanakhGenerator:
         book.set_language("he")
         book.add_author("Sefaria.org")
 
+        # Add cover image
+        cover_path = Path("images/chagall_moses_tablets_cover.jpg")
+        if cover_path.exists():
+            with open(cover_path, "rb") as f:
+                book.set_cover("cover.jpg", f.read())
+            print("  ✓ Added cover image")
+
         # Add CSS
         css = epub.EpubItem(
             uid="style", file_name="style.css", media_type="text/css", content=self.get_css()
@@ -485,7 +491,9 @@ class TanakhGenerator:
                     <p>vibrant colors and dreamlike imagery.</p>
                     <p class="source">
                         Images courtesy of artchive.com<br/>
-                        <a href="https://www.artchive.com/?s=chagall+bible">www.artchive.com/?s=chagall+bible</a>
+                        <a href="https://www.artchive.com/?s=chagall+bible">
+                            www.artchive.com/?s=chagall+bible
+                        </a>
                     </p>
                 </div>
             </body>
