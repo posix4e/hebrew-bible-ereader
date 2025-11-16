@@ -9,6 +9,8 @@ import argparse
 import re
 from pathlib import Path
 from typing import Dict, Optional
+import json
+import random
 
 import requests
 from ebooklib import epub
@@ -19,6 +21,9 @@ import io
 
 class TanakhGenerator:
     def __init__(self):
+        # Load Chagall images configuration
+        self.chagall_images = self._load_chagall_images()
+
         # Full Tanakh - all books Jews expect
         self.books = [
             # TORAH
@@ -79,6 +84,37 @@ class TanakhGenerator:
 
         # Set up Jinja2 templates
         self.template_env = Environment(loader=FileSystemLoader("templates"), autoescape=True)
+
+    def _load_chagall_images(self) -> Dict:
+        """Load Chagall images mapping from config"""
+        chagall_map = {}
+
+        # Try to load from config file
+        config_path = Path("chagall_download_config.json")
+        if config_path.exists():
+            with open(config_path, "r") as f:
+                config = json.load(f)
+
+            # Group images by book
+            for item in config:
+                book = item["book"]
+                if book not in chagall_map:
+                    chagall_map[book] = []
+
+                # Check if the image file actually exists
+                img_path = Path("images") / item["filename"]
+                if img_path.exists():
+                    chagall_map[book].append(
+                        {
+                            "filename": item["filename"],
+                            "title": item["title"],
+                            "path": str(img_path),
+                        }
+                    )
+
+            print(f"  ✓ Loaded {sum(len(imgs) for imgs in chagall_map.values())} Chagall images")
+
+        return chagall_map
 
     def get_css(self) -> str:
         """Load CSS from template file"""
@@ -170,8 +206,39 @@ class TanakhGenerator:
             lang="he",
         )
 
-        # Check for image
+        # Check for image - first try original artwork, then Chagall
         image_file = self.image_map.get((book_name, chapter_num))
+        chagall_image = None
+
+        # If it's the first chapter of a book with Chagall images, use one
+        if chapter_num == 1 and book_name in self.chagall_images:
+            chagall_images = self.chagall_images[book_name]
+            if chagall_images:
+                # Pick the first available Chagall image for this book
+                chagall_image = chagall_images[0]
+                if not image_file:  # Only use Chagall if no original artwork
+                    image_file = chagall_image["filename"]
+
+        # For certain special chapters, use specific Chagall images
+        elif book_name in self.chagall_images:
+            # Map specific chapters to relevant Chagall images based on content
+            special_chapters = {
+                ("Genesis", 22): "abraham",  # Abraham and Isaac
+                ("Genesis", 28): "jacob",  # Jacob's ladder
+                ("Exodus", 14): "moses",  # Red Sea
+                ("I_Samuel", 17): "david",  # David and Goliath
+            }
+
+            key = (book_name, chapter_num)
+            if key in special_chapters:
+                keyword = special_chapters[key]
+                chagall_images = self.chagall_images[book_name]
+                for img in chagall_images:
+                    if keyword.lower() in img["title"].lower():
+                        if not image_file:  # Only use if no original artwork
+                            image_file = img["filename"]
+                            chagall_image = img
+                        break
 
         # Try to use template
         try:
@@ -314,9 +381,132 @@ class TanakhGenerator:
                     book.add_item(img_item)
             print(f"  ✓ Embedded {len(images)} illustrations\n")
 
+        # Create dedication page
+        dedication_html = """
+        <!DOCTYPE html>
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+            <title>Dedication</title>
+            <link rel="stylesheet" type="text/css" href="style.css"/>
+            <style>
+                .dedication {
+                    margin: 30% auto;
+                    text-align: center;
+                    font-style: italic;
+                    max-width: 80%;
+                }
+                .dedication h2 {
+                    font-size: 1.5em;
+                    margin-bottom: 1em;
+                    font-weight: normal;
+                }
+                .dedication p {
+                    font-size: 1.1em;
+                    line-height: 1.8;
+                    margin: 0.5em 0;
+                }
+                .dedication .name {
+                    font-size: 1.2em;
+                    margin-top: 2em;
+                    font-weight: bold;
+                }
+                .dedication .link {
+                    font-size: 0.9em;
+                    margin-top: 1em;
+                    color: #667eea;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="dedication">
+                <h2>Dedication</h2>
+                <p>This edition of the Tanakh is dedicated with love to</p>
+                <p class="name">Bruno "DaVenzia" Naphtali</p>
+                <p>He saved my life</p>
+                <p class="link">
+                    <a href="https://www.instagram.com/brunodavenzia/">@brunodavenzia</a>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        dedication = epub.EpubHtml(title="Dedication", file_name="dedication.xhtml", lang="en")
+        dedication.content = dedication_html
+        dedication.add_item(css)
+        book.add_item(dedication)
+
+        # Add Chagall attribution page if we have Chagall images
+        if self.chagall_images:
+            attribution_html = """
+            <!DOCTYPE html>
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <head>
+                <title>Artwork Attribution</title>
+                <link rel="stylesheet" type="text/css" href="style.css"/>
+                <style>
+                    .attribution {
+                        margin: 20% auto;
+                        text-align: center;
+                        max-width: 80%;
+                    }
+                    .attribution h2 {
+                        font-size: 1.4em;
+                        margin-bottom: 1em;
+                    }
+                    .attribution p {
+                        font-size: 1em;
+                        line-height: 1.6;
+                        margin: 0.5em 0;
+                    }
+                    .attribution .artist {
+                        font-weight: bold;
+                        font-size: 1.1em;
+                        margin: 1em 0;
+                    }
+                    .attribution .source {
+                        font-style: italic;
+                        color: #667eea;
+                        margin-top: 1.5em;
+                    }
+                    .attribution a {
+                        color: #667eea;
+                        text-decoration: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="attribution">
+                    <h2>Artwork Attribution</h2>
+                    <p class="artist">Marc Chagall Bible Illustrations</p>
+                    <p>This edition includes beautiful Bible illustrations by Marc Chagall,</p>
+                    <p>one of the most celebrated artists of the 20th century.</p>
+                    <p>His unique vision brings the ancient texts to life with</p>
+                    <p>vibrant colors and dreamlike imagery.</p>
+                    <p class="source">
+                        Images courtesy of artchive.com<br/>
+                        <a href="https://www.artchive.com/?s=chagall+bible">www.artchive.com/?s=chagall+bible</a>
+                    </p>
+                </div>
+            </body>
+            </html>
+            """
+
+            attribution = epub.EpubHtml(
+                title="Artwork Attribution", file_name="attribution.xhtml", lang="en"
+            )
+            attribution.content = attribution_html
+            attribution.add_item(css)
+            book.add_item(attribution)
+
         # Process books
-        spine = ["nav"]
-        toc = []
+        spine = ["nav", dedication]
+        toc = [dedication]
+
+        # Add attribution to spine if it exists
+        if self.chagall_images:
+            spine.append(attribution)
+            toc.append(attribution)
 
         for book_info in self.books:
             english_name, hebrew_name, transliteration, chapter_count = book_info
