@@ -337,7 +337,9 @@ class TanakhGenerator:
 
         return result
 
-    def generate(self, output_file: str = "tanakh.epub", test_mode: bool = False):
+    def generate(
+        self, output_file: str = "tanakh.epub", test_mode: bool = False, test2_mode: bool = False
+    ):
         """Generate the complete Tanakh EPUB"""
         print("=" * 60)
         print("Tanakh EPUB Generator for Kobo Libra Colour")
@@ -524,11 +526,19 @@ class TanakhGenerator:
             spine.append(attribution)
             toc.append(attribution)
 
-        for book_info in self.books:
+        # Determine which books to process
+        books_to_process = self.books
+        if test2_mode:
+            # test2 mode: only first 3 books, first 3 chapters each
+            books_to_process = self.books[:3]
+            print("🧪 TEST2 MODE: Processing only first 3 books (Genesis, Exodus, Leviticus)")
+            print("              with first 3 chapters each\n")
+
+        for book_info in books_to_process:
             english_name, hebrew_name, transliteration, chapter_count = book_info
 
             # Test mode - only first 3 chapters
-            if test_mode:
+            if test_mode or test2_mode:
                 chapter_count = min(3, chapter_count)
 
             print(f"📖 Processing {english_name}...")
@@ -561,11 +571,14 @@ def main():
     parser = argparse.ArgumentParser(description="Generate Tanakh EPUB for Kobo")
     parser.add_argument("-o", "--output", default="tanakh.epub", help="Output filename")
     parser.add_argument("--test", action="store_true", help="Test mode - only 3 chapters per book")
+    parser.add_argument(
+        "--test2", action="store_true", help="Test2 mode - only first 3 books, 3 chapters each"
+    )
 
     args = parser.parse_args()
 
     generator = TanakhGenerator()
-    generator.generate(args.output, args.test)
+    generator.generate(args.output, args.test, args.test2)
 
 
 if __name__ == "__main__":

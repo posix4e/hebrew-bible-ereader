@@ -83,6 +83,17 @@ h2 {
   color: #667eea;
   font-size: 0.9em;
   margin: 0 0.3em;
+  display: inline-block;
+  min-width: 2em;
+}
+
+.verse-wrapper {
+  margin-bottom: 0.5em;
+  line-height: 1.8;
+}
+
+.verse-content {
+  display: inline;
 }
 
 .image-container {
@@ -107,19 +118,57 @@ h2 {
   font-size: 0.9em;
 }
 
-/* Landscape mode - side by side */
-@media (min-width: 1000px) {
+/* Landscape mode - side by side Hebrew and English */
+@media (orientation: landscape) and (min-width: 800px) {
   .content-layout {
     display: flex;
-    gap: 2em;
+    gap: 1.5em;
+    align-items: start;
   }
 
   .text-section {
     flex: 1;
+    margin-bottom: 1em;
   }
 
   .hebrew-section {
     margin-right: 0;
+    border-right: 2px solid #e2e8f0;
+    padding-right: 1.5em;
+  }
+
+  .english-section {
+    padding-left: 1.5em;
+  }
+
+  /* Ensure both columns align at top */
+  .hebrew-text,
+  .english-text {
+    margin-top: 0;
+  }
+}
+
+/* Alternative for devices that don't support orientation */
+@media (min-aspect-ratio: 4/3) and (min-width: 800px) {
+  .content-layout {
+    display: flex;
+    gap: 1.5em;
+    align-items: start;
+  }
+
+  .text-section {
+    flex: 1;
+    margin-bottom: 1em;
+  }
+
+  .hebrew-section {
+    margin-right: 0;
+    border-right: 2px solid #e2e8f0;
+    padding-right: 1.5em;
+  }
+
+  .english-section {
+    padding-left: 1.5em;
   }
 }
 
@@ -136,5 +185,37 @@ h2 {
   .hebrew-section,
   .english-section {
     background: white;
+  }
+}
+
+/* Kobo Libra Colour specific - landscape mode */
+@media screen and (min-device-width: 1264px) and (orientation: landscape) {
+  .content-layout {
+    display: flex !important;
+    gap: 1.5em;
+  }
+
+  .text-section {
+    flex: 1;
+    width: 48%;
+  }
+
+  .hebrew-section {
+    order: 2; /* Hebrew on right side in landscape */
+  }
+
+  .english-section {
+    order: 1; /* English on left side in landscape */
+  }
+
+  /* Synchronize verse alignment */
+  .hebrew-text,
+  .english-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .verse-wrapper {
+    margin-bottom: 0.5em;
   }
 }
