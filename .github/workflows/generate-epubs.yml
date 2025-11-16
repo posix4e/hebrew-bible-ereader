@@ -113,12 +113,14 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: actions/configure-pages@v4
 
-    - name: Copy EPUB to Pages directory
+    - name: Copy files to Pages directory
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: |
         mkdir -p _site
         cp index.html _site/
         cp gallery.html _site/ || true
+        cp -r images _site/ || true
+        cp chagall_placement_map.json _site/ || true
         cp output/tanakh.epub _site/tanakh.epub || true
 
     - name: Upload Pages artifact
