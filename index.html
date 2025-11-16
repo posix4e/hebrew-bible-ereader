@@ -408,9 +408,31 @@
         </section>
     </div>
 
+        <!-- How It's Made Section -->
+        <section class="intro" style="margin-top: 4rem; background: #f9f9f9; padding: 3rem; border-radius: 10px;">
+            <h2>📖 How These EPUBs Are Generated</h2>
+            <p style="margin-bottom: 2rem;">All EPUBs are automatically generated from the Sefaria API using Python scripts that:</p>
+            <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <ul style="line-height: 2;">
+                    <li>📥 Fetch Hebrew texts and translations from Sefaria's open database</li>
+                    <li>🔤 Support multiple English translations (JPS, Koren, Community, etc.)</li>
+                    <li>📝 Include classical commentaries like Rashi, Ibn Ezra, and Ramban</li>
+                    <li>📱 Optimize layouts for e-reader screens (especially Kobo Color)</li>
+                    <li>🎨 Handle Hebrew RTL text and proper font embedding</li>
+                    <li>📊 Generate responsive layouts that adapt to portrait/landscape</li>
+                </ul>
+            </div>
+            <p style="margin-top: 2rem;">
+                <strong>GitHub Actions</strong> automatically builds fresh EPUBs whenever the code is updated.<br>
+                You can also fork the repository and customize the generation for your preferences.
+            </p>
+        </section>
+    </div>
+
     <footer>
-        <p>Generated from <a href="https://www.sefaria.org">Sefaria</a> texts</p>
-        <p>Source code available on <a href="https://github.com/yourusername/hebrew-bible-ereader">GitHub</a></p>
+        <p>📚 Generated from <a href="https://www.sefaria.org">Sefaria</a> open-source texts</p>
+        <p>💻 Source code & documentation: <a href="https://github.com/posix4e/hebrew-bible-ereader">GitHub Repository</a></p>
+        <p>🔧 Built with Python, ebooklib, and the Sefaria API</p>
         <p>Last updated: <span id="update-date">2024</span></p>
     </footer>
 
