@@ -1,0 +1,222 @@
+@font-face {
+  font-family: "NotoSerifHebrew";
+  src: url("fonts/NotoSerifHebrew-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: Georgia, serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0.5em;
+  background: #faf9f5;
+}
+
+.chapter-container {
+  margin: 0 auto;
+  padding: 0.5em;
+  max-width: 1200px;
+}
+
+/* Chapter header */
+.chapter-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5em 1em;
+  border-radius: 8px;
+  margin-bottom: 1em;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chapter-header h1 {
+  font-size: 1.5em;
+  margin: 0 0 0.3em 0;
+}
+
+.chapter-header h2 {
+  font-size: 1.2em;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Chapter image */
+.chapter-image {
+  text-align: center;
+  margin: 1em auto;
+  max-width: 90%;
+}
+
+.chapter-image img {
+  max-width: 100%;
+  max-height: 60vh;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.image-caption {
+  margin-top: 0.5em;
+  font-style: italic;
+  color: #718096;
+  font-size: 0.9em;
+}
+
+/* Verses container */
+.verses-container {
+  margin-top: 1em;
+}
+
+/* Verse pair container */
+.verse-pair {
+  margin-bottom: 1.5em;
+  background: white;
+  border-radius: 8px;
+  padding: 1em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Verse styling */
+.hebrew-verse {
+  direction: rtl;
+  text-align: right;
+  font-family: "NotoSerifHebrew", serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  color: #1a202c;
+  margin-bottom: 0.8em;
+}
+
+.english-verse {
+  direction: ltr;
+  text-align: left;
+  font-size: 1.1em;
+  line-height: 1.7;
+  color: #2d3748;
+}
+
+.verse-number {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 0.9em;
+  margin-right: 0.5em;
+  display: inline-block;
+  min-width: 2em;
+}
+
+.hebrew-verse .verse-number {
+  margin-right: 0;
+  margin-left: 0.5em;
+}
+
+/* =================================
+   PORTRAIT MODE (Default)
+   Verses alternate one after another
+   ================================= */
+@media screen and (orientation: portrait) {
+  .verse-pair {
+    display: block;
+  }
+
+  .hebrew-verse {
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .english-verse {
+    padding-top: 0.5em;
+  }
+}
+
+/* =================================
+   LANDSCAPE MODE
+   Hebrew left, English right
+   ================================= */
+@media screen and (orientation: landscape) {
+  .chapter-container {
+    max-width: 100%;
+  }
+
+  .verse-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2em;
+    align-items: start;
+  }
+
+  .hebrew-verse {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-right: 1em;
+    border-right: 1px solid #e2e8f0;
+  }
+
+  .english-verse {
+    padding-top: 0;
+    padding-left: 1em;
+  }
+
+  /* Make fonts slightly smaller in landscape for better fit */
+  .hebrew-verse {
+    font-size: 1.2em;
+  }
+
+  .english-verse {
+    font-size: 1em;
+  }
+}
+
+/* Additional landscape optimizations for larger screens */
+@media screen and (orientation: landscape) and (min-width: 1024px) {
+  .verses-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .verse-pair {
+    gap: 3em;
+  }
+}
+
+/* E-ink specific adjustments */
+@media (monochrome) {
+  body {
+    background: white;
+  }
+
+  .chapter-header {
+    background: #333;
+    color: white;
+  }
+
+  .verse-pair {
+    border: 1px solid #333;
+  }
+
+  .verse-number {
+    text-decoration: underline;
+  }
+}
+
+/* Page break controls for e-readers */
+.chapter-header {
+  page-break-inside: avoid;
+}
+
+.chapter-image {
+  page-break-inside: avoid;
+}
+
+.verse-pair {
+  page-break-inside: avoid;
+}
+
+/* Ensure chapter starts on new page */
+.chapter-container {
+  page-break-before: always;
+}
+
+.chapter-container:first-child {
+  page-break-before: auto;
+}

@@ -122,7 +122,7 @@ class TanakhGenerator:
 
     def get_css(self) -> str:
         """Load CSS from template file"""
-        css_path = Path("templates/style.css")
+        css_path = Path("templates/style_minimal.css")
         if css_path.exists():
             return css_path.read_text()
         else:
@@ -164,15 +164,15 @@ class TanakhGenerator:
                     time.sleep(2)
         return {}
 
-    def create_chapter_pages(
+    def create_chapter_responsive(
         self, book_name: str, hebrew_name: str, chapter_num: int, chapter_count: int
-    ) -> list:
-        """Create alternating pages of Hebrew and English text for a chapter"""
+    ) -> Optional[epub.EpubHtml]:
+        """Create a chapter with responsive Hebrew/English layout"""
         print(f"  Chapter {chapter_num}/{chapter_count}")
 
         data = self.fetch_text(book_name, chapter_num)
         if not data or "he" not in data or "text" not in data:
-            return []
+            return None
 
         hebrew_text = data["he"]
         english_text = data["text"]
@@ -200,10 +200,6 @@ class TanakhGenerator:
                 clean_v = clean_v.strip()
                 if clean_v:
                     english_verses.append(clean_v)
-
-        # Split verses into page-sized chunks
-        verses_per_page = 5
-        pages = []
 
         # Check for image
         image_file = self.image_map.get((book_name, chapter_num))
@@ -234,140 +230,60 @@ class TanakhGenerator:
                 image_file = chagall_image["filename"]
                 self.chagall_index += 1
 
-        # Create either image page OR title page, not both
-        header_page = epub.EpubHtml(
+        # Create chapter
+        chapter = epub.EpubHtml(
             title=f"{book_name} {chapter_num}",
-            file_name=f"{book_name}_{chapter_num}_header.xhtml",
-            lang="en",
+            file_name=f"{book_name}_{chapter_num}.xhtml",
+            lang="he",
         )
 
-        if image_file:
-            # If there's an image, show just the image
-            header_html = f"""<!DOCTYPE html>
+        # Build HTML with responsive layout
+        html = f"""<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>{book_name} {chapter_num}</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body>
-    <div class="chapter-container image-page">
-        <div class="image-container full-page">
-            <img src="images/{image_file}" alt="{book_name} Chapter {chapter_num}"/>
-            <div class="image-caption">{book_name} Chapter {chapter_num}</div>
-        </div>
-    </div>
-</body>
-</html>"""
-        else:
-            # If no image, show the chapter title
-            header_html = f"""<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>{book_name} {chapter_num}</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body>
-    <div class="chapter-container title-page">
-        <div class="header-section">
+    <div class="chapter-container">
+        <div class="chapter-header">
             <h1>{book_name} {chapter_num}</h1>
             <h2>{hebrew_name} פרק {self.to_hebrew_numeral(chapter_num)}</h2>
+        </div>"""
+
+        if image_file:
+            html += f"""
+        <div class="chapter-image">
+            <img src="images/{image_file}" alt="{book_name} Chapter {chapter_num}"/>
+            <div class="image-caption">{book_name} Chapter {chapter_num}</div>
+        </div>"""
+
+        html += """
+        <div class="verses-container">"""
+
+        # Add verses - simple, no wrapper
+        max_verses = max(len(hebrew_verses), len(english_verses))
+        for i in range(max_verses):
+            if i < len(hebrew_verses):
+                html += f"""
+            <div class="hebrew-verse">
+                <span class="verse-number">{i + 1}</span>{hebrew_verses[i]}
+            </div>"""
+
+            if i < len(english_verses):
+                html += f"""
+            <div class="english-verse">
+                <span class="verse-number">{i + 1}</span>{english_verses[i]}
+            </div>"""
+
+        html += """
         </div>
     </div>
 </body>
 </html>"""
 
-        header_page.content = header_html
-        pages.append(header_page)
-
-        # Add blank page to maintain even count
-        blank_page = epub.EpubHtml(
-            title="",
-            file_name=f"{book_name}_{chapter_num}_blank.xhtml",
-            lang="en",
-        )
-        blank_page.content = """<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title></title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body>
-    <div class="blank-page"></div>
-</body>
-</html>"""
-        pages.append(blank_page)
-
-        # Create alternating pages of Hebrew and English text
-        total_pages = (len(hebrew_verses) + verses_per_page - 1) // verses_per_page
-
-        for page_num in range(total_pages):
-            start_idx = page_num * verses_per_page
-            end_idx = min(start_idx + verses_per_page, len(hebrew_verses))
-
-            # Hebrew page
-            hebrew_page = epub.EpubHtml(
-                title=f"{book_name} {chapter_num} - Hebrew p{page_num + 1}",
-                file_name=f"{book_name}_{chapter_num}_hebrew_{page_num + 1}.xhtml",
-                lang="he",
-            )
-
-            hebrew_html = f"""<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>{book_name} {chapter_num} - Hebrew</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body>
-    <div class="chapter-container">
-        <div class="text-section hebrew-section">
-            <div class="page-header">{hebrew_name} פרק {self.to_hebrew_numeral(chapter_num)}</div>
-            <div class="hebrew-text">"""
-
-            for i in range(start_idx, end_idx):
-                hebrew_html += f'<span class="verse-number">{i + 1}</span>{hebrew_verses[i]} '
-
-            hebrew_html += """
-            </div>
-        </div>
-    </div>
-</body>
-</html>"""
-            hebrew_page.content = hebrew_html
-            pages.append(hebrew_page)
-
-            # English page (using SAME verse indices as Hebrew for alignment)
-            english_page = epub.EpubHtml(
-                title=f"{book_name} {chapter_num} - English p{page_num + 1}",
-                file_name=f"{book_name}_{chapter_num}_english_{page_num + 1}.xhtml",
-                lang="en",
-            )
-            english_html = f"""<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>{book_name} {chapter_num} - English</title>
-    <link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body>
-    <div class="chapter-container">
-        <div class="text-section english-section">
-            <div class="page-header">{book_name} Chapter {chapter_num}</div>
-            <div class="english-text">"""
-
-            # Use same indices as Hebrew to keep them aligned
-            for i in range(start_idx, end_idx):
-                if i < len(english_verses):
-                    english_html += f'<span class="verse-number">{i + 1}</span>{english_verses[i]} '
-
-            english_html += """
-            </div>
-        </div>
-    </div>
-</body>
-</html>"""
-            english_page.content = english_html
-            pages.append(english_page)
-
-        return pages
+        chapter.content = html
+        return chapter
 
     def create_chapter(
         self, book_name: str, hebrew_name: str, chapter_num: int, chapter_count: int
@@ -750,17 +666,14 @@ class TanakhGenerator:
 
             book_chapters = []
             for chapter_num in range(1, chapter_count + 1):
-                # Use the new page-based approach
-                pages = self.create_chapter_pages(
+                chapter = self.create_chapter_responsive(
                     english_name, hebrew_name, chapter_num, chapter_count
                 )
-                for page in pages:
-                    page.add_item(css)
-                    book.add_item(page)
-                    spine.append(page)
-                    # Add header pages to TOC for navigation
-                    if "header" in page.file_name:
-                        book_chapters.append(page)
+                if chapter:
+                    chapter.add_item(css)
+                    book.add_item(chapter)
+                    spine.append(chapter)
+                    book_chapters.append(chapter)
 
             if book_chapters:
                 toc.append((epub.Section(f"{english_name} - {hebrew_name}"), book_chapters))
