@@ -86,9 +86,8 @@
       <header>
         <h1>Hebrew Bible E‑Reader</h1>
         <div class="nav">
-          <a href="gallery.html">Gallery</a>
+          <a href="#gallery">Gallery</a>
           <a href="tanakh.epub">The Book (EPUB)</a>
-          <a href="about.html">Explanation</a>
         </div>
         <div class="divider"></div>
       </header>
@@ -106,6 +105,182 @@
           in Heaven.
         </div>
       </section>
+      <!-- Gallery Section -->
+      <section
+        id="gallery"
+        class="card"
+        style="margin-top: 16px; background: rgba(255, 255, 255, 0.95)"
+      >
+        <div class="en" style="margin-bottom: 10px; font-weight: 600; color: #333">
+          Marc Chagall Bible Illustrations
+        </div>
+        <div id="gallery-content"></div>
+      </section>
     </div>
+
+    <!-- Modal for displaying full-size images -->
+    <div id="imageModal" class="modal">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="modalImage" />
+      <div id="modalCaption" class="modal-caption"></div>
+    </div>
+
+    <script>
+      // Minimal gallery logic
+      function romanToInt(roman) {
+        if (!roman) return null;
+        const values = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+        let sum = 0,
+          prev = 0;
+        for (let i = roman.length - 1; i >= 0; i--) {
+          const c = roman[i].toUpperCase();
+          const val = values[c];
+          if (!val) return null;
+          if (val < prev) sum -= val;
+          else sum += val;
+          prev = val;
+        }
+        return sum || null;
+      }
+
+      function extractSubjectRef(desc) {
+        if (!desc) return null;
+        const parenMatch = desc.match(/\(([^()]+)\)\s*$/);
+        if (!parenMatch) return null;
+        const inside = parenMatch[1];
+        const refMatch = inside.match(/^(.*?)\s*[,\s]*([IVXLCDM]+)\b/i);
+        if (!refMatch) return null;
+        let bookRaw = refMatch[1].trim();
+        const roman = (refMatch[2] || "").toUpperCase();
+        const chapter = romanToInt(roman);
+        if (!bookRaw || !chapter) return null;
+        const bookNorm = bookRaw
+          .replace(/\bI\b\s*_?/g, "I ")
+          .replace(/\bII\b\s*_?/g, "II ")
+          .replace(/_/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        return `${bookNorm} ${chapter}`;
+      }
+
+      async function loadImageConfig() {
+        try {
+          const res = await fetch("chagall_download_config.json", { cache: "no-store" });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const items = await res.json();
+          const byBook = new Map();
+          for (const it of items) {
+            const book = it.book || "General";
+            if (!byBook.has(book)) byBook.set(book, []);
+            byBook.get(book).push(it);
+          }
+          return byBook;
+        } catch (e) {
+          console.error("Failed to load chagall_download_config.json", e);
+          return new Map();
+        }
+      }
+
+      async function generateGallery() {
+        const container = document.getElementById("gallery-content");
+        const byBook = await loadImageConfig();
+        const bookOrder = [
+          "Genesis",
+          "Exodus",
+          "Leviticus",
+          "Numbers",
+          "Deuteronomy",
+          "Joshua",
+          "Judges",
+          "I_Samuel",
+          "II_Samuel",
+          "I_Kings",
+          "II_Kings",
+          "Isaiah",
+          "Jeremiah",
+          "Ezekiel",
+          "Hosea",
+          "Joel",
+          "Amos",
+          "Obadiah",
+          "Jonah",
+          "Micah",
+          "Nahum",
+          "Habakkuk",
+          "Zephaniah",
+          "Haggai",
+          "Zechariah",
+          "Malachi",
+          "Psalms",
+          "Proverbs",
+          "Job",
+          "Song_of_Songs",
+          "Ruth",
+          "Lamentations",
+          "Ecclesiastes",
+          "Esther",
+          "Daniel",
+          "Ezra",
+          "Nehemiah",
+          "I_Chronicles",
+          "II_Chronicles",
+          "General",
+        ];
+        const books = Array.from(byBook.keys()).sort((a, b) => {
+          const ai = bookOrder.indexOf(a),
+            bi = bookOrder.indexOf(b);
+          if (ai === -1 && bi === -1) return a.localeCompare(b);
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        });
+        let html = "";
+        for (const book of books) {
+          const images = byBook.get(book);
+          const bookTitle = book && book.indexOf("_") !== -1 ? book.split("_").join(" ") : book;
+          html += `<div class="book-section">`;
+          html += `<h2 class="book-title">${bookTitle}</h2>`;
+          html += `<div class="image-grid">`;
+          images.forEach((img) => {
+            const subjectRef = extractSubjectRef(img.title);
+            const placementText = subjectRef
+              ? `<div class="chapter-placement">📍 ${subjectRef}</div>`
+              : "";
+            const safeTitle = img.title.replace(/'/g, "\\'");
+            html += `
+              <div class="image-card">
+                <img src="images/${img.filename}" alt="${safeTitle}" onclick="openModal('images/${img.filename}', '${safeTitle}')" loading="lazy">
+                <div class="image-info">
+                  <div class="image-title">${img.title}</div>
+                  <div class="image-description"></div>
+                  ${placementText}
+                </div>
+              </div>
+            `;
+          });
+          html += `</div></div>`;
+        }
+        container.innerHTML = books.length
+          ? html
+          : '<div class="image-info"><strong>Unable to load gallery data.</strong> Please refresh.</div>';
+      }
+
+      function openModal(imgSrc, caption) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        const captionText = document.getElementById("modalCaption");
+        modal.style.display = "block";
+        modalImg.src = imgSrc;
+        captionText.innerHTML = caption;
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        const c = document.querySelector(".close");
+        if (c) c.onclick = () => (document.getElementById("imageModal").style.display = "none");
+        document.getElementById("imageModal").onclick = function (event) {
+          if (event.target.id === "imageModal") this.style.display = "none";
+        };
+        generateGallery();
+      });
+    </script>
   </body>
 </html>
