@@ -295,15 +295,21 @@
 
       const imageData = null; // legacy placeholder
       async function loadImageConfig() {
-        const res = await fetch('chagall_download_config.json');
-        const items = await res.json();
-        const byBook = new Map();
-        for (const it of items) {
-          const book = it.book || 'General';
-          if (!byBook.has(book)) byBook.set(book, []);
-          byBook.get(book).push(it);
+        try {
+          const res = await fetch('chagall_download_config.json', { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const items = await res.json();
+          const byBook = new Map();
+          for (const it of items) {
+            const book = it.book || 'General';
+            if (!byBook.has(book)) byBook.set(book, []);
+            byBook.get(book).push(it);
+          }
+          return byBook;
+        } catch (e) {
+          console.error('Failed to load chagall_download_config.json', e);
+          return new Map();
         }
-        return byBook;
       }
 
       /*
@@ -889,7 +895,8 @@
         for (const book of books) {
           const images = byBook.get(book);
           html += `<div class="book-section">`;
-          html += `<h2 class="book-title">${book.replaceAll('_',' ')}</h2>`;
+          const bookTitle = book && book.indexOf('_') !== -1 ? book.split('_').join(' ') : book;
+          html += `<h2 class="book-title">${bookTitle}</h2>`;
           html += `<div class="image-grid">`;
 
           images.forEach((img) => {
@@ -912,7 +919,11 @@
           html += `</div></div>`;
         }
 
-        container.innerHTML = html;
+        if (!books.length) {
+          container.innerHTML = `<div class="attribution"><strong>Unable to load gallery data.</strong> Please refresh the page.</div>`;
+        } else {
+          container.innerHTML = html;
+        }
       }
 
       // Modal functionality
