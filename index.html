@@ -2,76 +2,82 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hebrew Bible E‑Reader</title>
     <style>
+      :root {
+        --bg1: #667eea;
+        --bg2: #764ba2;
+        --ink: #222;
+        --accent: #667eea;
+      }
       * {
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
       }
-
       body {
+        margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
           sans-serif;
         line-height: 1.6;
-        color: #333;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: var(--ink);
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
+        background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+        padding: 22px;
       }
-
       .wrap {
         max-width: 900px;
-        width: 100%;
+        margin: 0 auto;
       }
-
       header {
+        color: #fff;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         margin-bottom: 16px;
       }
       header h1 {
-        font-size: 1.9em;
-        color: #fff;
-        margin-bottom: 6px;
+        margin: 0 0 6px;
+        font-size: 1.9rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
       }
-
       .nav a {
         color: #fff;
         text-decoration: none;
         margin-right: 14px;
         font-weight: 600;
+        border-bottom: 2px solid transparent;
+        padding-bottom: 2px;
       }
       .nav a:hover {
-        text-decoration: underline;
+        border-bottom-color: #fff;
+      }
+      .divider {
+        height: 2px;
+        margin-top: 10px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+        border-radius: 2px;
       }
       .card {
         background: #ffffff;
         border-radius: 10px;
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         padding: 18px 20px;
+        border-left: 4px solid var(--accent);
       }
       .he {
         direction: rtl;
         text-align: right;
-        font-size: 1.15rem;
+        font-size: 1.22rem;
         margin: 6px 0 2px;
+        font-weight: 600;
+        font-family: "NotoSerifHebrew", "Noto Sans Hebrew", Tahoma, Arial, sans-serif;
       }
       .en {
         color: #555;
         margin: 0 0 8px;
-      }
-
-      @media (max-width: 600px) {
-        .header h1 {
-          font-size: 1.8em;
-        }
-
-        .features {
-          grid-template-columns: 1fr;
-        }
       }
     </style>
   </head>
@@ -84,6 +90,7 @@
           <a href="tanakh.epub">The Book (EPUB)</a>
           <a href="about.html">Explanation</a>
         </div>
+        <div class="divider"></div>
       </header>
 
       <section class="card">
@@ -99,104 +106,6 @@
           in Heaven.
         </div>
       </section>
-      <div class="header">
-        <h1>📖 Tanakh EPUB Reader</h1>
-        <p>Hebrew Bible for Kobo E-Readers</p>
-      </div>
-
-      <div class="content">
-        <div class="features">
-          <div class="feature">
-            <div class="feature-icon">🌍</div>
-            <h3>Complete Tanakh</h3>
-            <p>All 39 books of the Hebrew Bible</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">📱</div>
-            <h3>Responsive Layout</h3>
-            <p>Adapts to portrait & landscape</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🎨</div>
-            <h3>Chagall Artwork</h3>
-            <p>150+ biblical illustrations</p>
-          </div>
-          <div class="feature">
-            <div class="feature-icon">🔤</div>
-            <h3>Hebrew & English</h3>
-            <p>Side-by-side translations</p>
-          </div>
-        </div>
-
-        <div class="download-section">
-          <h2>📥 Download for Your E-Reader</h2>
-          <p style="margin-bottom: 20px">Optimized for Kobo Libra Colour and other e-readers</p>
-          <a
-            href="https://github.com/posix4e/hebrew-bible-ereader/releases/latest/download/tanakh.epub"
-            class="download-btn"
-          >
-            Download Tanakh EPUB
-          </a>
-          <a
-            href="gallery.html"
-            class="download-btn"
-            style="background: linear-gradient(135deg, #764ba2 0%, #f76b1c 100%)"
-          >
-            View Chagall Gallery
-          </a>
-        </div>
-
-        <div class="info-section">
-          <h2>📚 What's Included</h2>
-          <ul>
-            <li><strong>Torah (תורה)</strong> - Genesis through Deuteronomy</li>
-            <li>
-              <strong>Nevi'im (נביאים)</strong> - Prophets including Joshua, Samuel, Kings, Isaiah,
-              Jeremiah
-            </li>
-            <li>
-              <strong>Ketuvim (כתובים)</strong> - Writings including Psalms, Proverbs, Job, Daniel
-            </li>
-          </ul>
-        </div>
-
-        <div class="info-section">
-          <h2>🚀 How to Use</h2>
-          <ol>
-            <li>Download the EPUB file above</li>
-            <li>Connect your Kobo to your computer via USB</li>
-            <li>Copy the EPUB to your Kobo's root directory</li>
-            <li>Safely eject and enjoy reading!</li>
-          </ol>
-        </div>
-
-        <div class="info-section">
-          <h2>✨ Features</h2>
-          <ul>
-            <li>Clean Hebrew text with vowel points (nikud)</li>
-            <li>The Koren Jerusalem Bible English translation</li>
-            <li>Responsive layout - stacked in portrait, side-by-side in landscape</li>
-            <li>Embedded Hebrew fonts for proper display</li>
-            <li>150+ Marc Chagall Bible illustrations throughout</li>
-            <li>Hierarchical table of contents for easy navigation</li>
-            <li>Dedication to Bruno "DaVenzia" Naphtali</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>
-          Generated with ❤️ using
-          <a href="https://www.sefaria.org" target="_blank">Sefaria.org</a> texts
-          <br />
-          Chagall illustrations courtesy of
-          <a href="https://www.artchive.com/?s=chagall+bible" target="_blank">artchive.com</a>
-          <br />
-          <a href="https://github.com/posix4e/hebrew-bible-ereader" target="_blank"
-            >View on GitHub</a
-          >
-        </p>
-      </div>
     </div>
   </body>
 </html>
