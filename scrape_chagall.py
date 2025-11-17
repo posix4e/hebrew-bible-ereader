@@ -39,64 +39,112 @@ def save_python_config(config, py_file="chagall_config.py"):
         f.write('Source: https://www.artchive.com/?s=chagall+bible"""\n')
 
 
-def get_search_results(search_url):
-    """Get all artwork links from search results page"""
-    print(f"Fetching search results from: {search_url}")
-
+def get_all_search_results(base_search_url):
+    """Get all artwork links from all pages of search results"""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
-    response = requests.get(search_url, headers=headers)
-    response.raise_for_status()
+    all_artworks = []
+    page = 1
 
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    # Find all article entries
-    articles = soup.find_all("article")
-    print(f"Found {len(articles)} articles")
-
-    artworks = []
-
-    for article in articles:
-        # Get the title
-        title_elem = article.find("h2", class_="entry-title")
-        if not title_elem:
-            continue
-
-        title = title_elem.get_text(strip=True)
-
-        # Get the link to the artwork page
-        link_elem = title_elem.find("a")
-        if not link_elem or "href" not in link_elem.attrs:
-            continue
-
-        artwork_url = link_elem["href"]
-
-        # Get the thumbnail image URL from the search results
-        img_elem = article.find("img")
-        if img_elem and "src" in img_elem.attrs:
-            thumbnail_url = img_elem["src"]
-
-            # Try to get the full-size image URL by modifying the thumbnail URL
-            # Thumbnails often have size parameters that can be removed
-            full_url = thumbnail_url
-
-            # Remove common WordPress thumbnail size parameters
-            full_url = re.sub(r"-\d+x\d+(\.\w+)$", r"\1", full_url)
-
-            artworks.append(
-                {
-                    "title": title,
-                    "page_url": artwork_url,
-                    "thumbnail_url": thumbnail_url,
-                    "image_url": full_url,
-                }
+    while True:
+        # Construct URL for current page
+        if page == 1:
+            search_url = base_search_url
+        else:
+            search_url = (
+                f"{base_search_url.replace('www.artchive.com/', 'www.artchive.com/page/')}{page}/"
             )
+            # Fix URL format
+            search_url = f"https://www.artchive.com/page/{page}/?s=chagall+bible"
 
-            print(f"  - {title}")
+        print(f"\nFetching page {page}: {search_url}")
 
-    return artworks
+        try:
+            response = requests.get(search_url, headers=headers)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                print(f"  No more pages (404 on page {page})")
+                break
+            else:
+                raise
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Find all article entries
+        articles = soup.find_all("article")
+
+        if not articles:
+            print(f"  No articles found on page {page}, stopping")
+            break
+
+        print(f"  Found {len(articles)} articles on page {page}")
+
+        page_artworks = []
+        for article in articles:
+            # Get the title
+            title_elem = article.find("h2", class_="entry-title")
+            if not title_elem:
+                continue
+
+            title = title_elem.get_text(strip=True)
+
+            # Get the link to the artwork page
+            link_elem = title_elem.find("a")
+            if not link_elem or "href" not in link_elem.attrs:
+                continue
+
+            artwork_url = link_elem["href"]
+
+            # Get the thumbnail image URL from the search results
+            img_elem = article.find("img")
+            if img_elem and "src" in img_elem.attrs:
+                thumbnail_url = img_elem["src"]
+
+                # Try to get the full-size image URL by modifying the thumbnail URL
+                # Thumbnails often have size parameters that can be removed
+                full_url = thumbnail_url
+
+                # Remove common WordPress thumbnail size parameters
+                full_url = re.sub(r"-\d+x\d+(\.\w+)$", r"\1", full_url)
+
+                page_artworks.append(
+                    {
+                        "title": title,
+                        "page_url": artwork_url,
+                        "thumbnail_url": thumbnail_url,
+                        "image_url": full_url,
+                    }
+                )
+
+                print(f"    - {title}")
+
+        if not page_artworks:
+            print(f"  No new artworks found on page {page}, stopping")
+            break
+
+        all_artworks.extend(page_artworks)
+
+        # Check if there's a next page link
+        next_link = soup.find("a", class_="next")
+        if not next_link:
+            # Alternative: check for pagination
+            pagination = soup.find("div", class_="navigation") or soup.find(
+                "nav", class_="navigation"
+            )
+            if pagination:
+                next_link = pagination.find("a", text=re.compile("next|→|»", re.IGNORECASE))
+
+        if not next_link:
+            print(f"  No next page link found, stopping at page {page}")
+            break
+
+        page += 1
+        time.sleep(1)  # Be polite between pages
+
+    return all_artworks
 
 
 def get_artwork_details(artwork_url, headers):
@@ -240,8 +288,8 @@ def main():
             existing_urls = {item["page_url"] for item in existing_config}
         print(f"  Loaded {len(existing_config)} existing entries")
 
-    # Get search results
-    artworks = get_search_results(search_url)
+    # Get search results from all pages
+    artworks = get_all_search_results(search_url)
 
     print(f"\nFound {len(artworks)} Chagall Bible artworks")
 

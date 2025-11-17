@@ -27,6 +27,12 @@ class TanakhGenerator:
         # Load Chagall images configuration
         self.chagall_images = self._load_chagall_images()
 
+        # Load definitive per-chapter placements if available
+        self.chagall_chapter_map = self._load_chagall_placements()
+
+        # Load optional per-book intro image overrides
+        self.book_intro_overrides = self._load_book_intro_overrides()
+
         # Full Tanakh - all books Jews expect
         self.books = [
             # TORAH
@@ -120,6 +126,101 @@ class TanakhGenerator:
 
         return chagall_map
 
+    def _select_book_image(self, book_name: str) -> Optional[Dict]:
+        """Pick an appropriate Chagall image for a given book if available.
+
+        Strategy:
+        - Use the first image listed in the config for this book (already filtered to existing files).
+        - Return a dict with keys: filename, title, path, book; or None if unavailable.
+        """
+        # Respect override if available
+        override = self.book_intro_overrides.get(book_name)
+        images = self.chagall_images.get(book_name)
+        if override and images:
+            for img in images:
+                if img.get("filename") == override:
+                    return img
+        if images:
+            return images[0]
+        return None
+
+    def create_book_intro_page(self, book_name: str, hebrew_name: str) -> Optional[epub.EpubHtml]:
+        """Create a decorative intro page for a book with a representative image."""
+        img = self._select_book_image(book_name)
+        if not img:
+            return None
+
+        page = epub.EpubHtml(
+            title=f"{book_name} - Introduction",
+            file_name=f"{book_name}_intro.xhtml",
+            lang="en",
+        )
+
+        html = f"""
+        <!DOCTYPE html>
+        <html xmlns=\"http://www.w3.org/1999/xhtml\">
+        <head>
+            <title>{book_name} - Introduction</title>
+            <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>
+            <style>
+                .book-intro {{ text-align:center; margin: 10% auto 5%; }}
+                .book-intro h1 {{ font-size: 1.6em; margin: 0.2em 0; }}
+                .book-intro h2 {{ font-size: 1.2em; margin: 0.2em 0; color: #555; }}
+                .book-intro .img-wrap {{ margin-top: 1.2em; }}
+                .book-intro img {{ max-width: 90%; height:auto; }}
+                .book-intro .caption {{ font-size: 0.9em; color: #666; margin-top: 0.6em; }}
+            </style>
+        </head>
+        <body>
+            <div class=\"book-intro\">
+                <h1>{book_name}</h1>
+                <h2>{hebrew_name}</h2>
+                <div class=\"img-wrap\">
+                    <img src=\"images/{img['filename']}\" alt=\"{img['title']}\"/>
+                    <div class=\"caption\">{img['title']}</div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        page.content = html
+        return page
+
+    def _load_chagall_placements(self) -> Dict:
+        """Load filename -> ["Book Chapter"] mapping and build (book,chapter)->[filenames]."""
+        mapping_path = Path("chagall_placement_map.json")
+        chapter_map = {}
+        if mapping_path.exists():
+            try:
+                with open(mapping_path, "r") as f:
+                    placement = json.load(f)
+                for filename, chapters in placement.items():
+                    for ref in chapters:
+                        try:
+                            book, chap_str = ref.rsplit(" ", 1)
+                            chap = int(chap_str)
+                        except Exception:
+                            continue
+                        chapter_map.setdefault((book, chap), []).append(filename)
+                print(f"  ✓ Loaded Chagall chapter placements for {len(placement)} images")
+            except Exception:
+                pass
+        return chapter_map
+
+    def _load_book_intro_overrides(self) -> Dict:
+        """Load optional mapping: book -> filename for intro page images."""
+        mapping_path = Path("book_intro_overrides.json")
+        if mapping_path.exists():
+            try:
+                with open(mapping_path, "r") as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    print(f"  ✓ Loaded book intro overrides for {len(data)} books")
+                    return data
+            except Exception:
+                pass
+        return {}
+
     def get_css(self) -> str:
         """Load CSS from template file"""
         css_path = Path("templates/style_minimal.css")
@@ -203,32 +304,12 @@ class TanakhGenerator:
 
         # Check for image
         image_file = self.image_map.get((book_name, chapter_num))
-        chagall_image = None
 
-        if not image_file and self.all_chagall_images:
-            should_add_image = False
-            if chapter_num == 1:
-                should_add_image = True
-            elif chapter_num % 6 == 0:
-                should_add_image = True
-            elif (book_name, chapter_num) in [
-                ("Genesis", 22),
-                ("Genesis", 28),
-                ("Exodus", 14),
-                ("Exodus", 20),
-                ("I_Samuel", 17),
-                ("I_Kings", 3),
-                ("Psalms", 23),
-                ("Job", 1),
-            ]:
-                should_add_image = True
-
-            if should_add_image:
-                chagall_image = self.all_chagall_images[
-                    self.chagall_index % len(self.all_chagall_images)
-                ]
-                image_file = chagall_image["filename"]
-                self.chagall_index += 1
+        # Prefer definitive Chagall placements when no original artwork is set
+        if not image_file and self.chagall_chapter_map:
+            files = self.chagall_chapter_map.get((book_name, chapter_num))
+            if files:
+                image_file = files[0]
 
         # Create chapter
         chapter = epub.EpubHtml(
@@ -331,42 +412,10 @@ class TanakhGenerator:
             lang="he",
         )
 
-        # Check for image - first try original artwork, then Chagall
-        image_file = self.image_map.get((book_name, chapter_num))
-        chagall_image = None
-
-        # If no original artwork, distribute Chagall images evenly
-        if not image_file and self.all_chagall_images:
-            # Add images at regular intervals (roughly every 5-7 chapters)
-            # But always include first chapter of each book
-            should_add_image = False
-
-            # Always add image to first chapter of each book
-            if chapter_num == 1:
-                should_add_image = True
-            # Add image every 6 chapters
-            elif chapter_num % 6 == 0:
-                should_add_image = True
-            # Special chapters that should have images
-            elif (book_name, chapter_num) in [
-                ("Genesis", 22),  # Abraham and Isaac
-                ("Genesis", 28),  # Jacob's ladder
-                ("Exodus", 14),  # Red Sea
-                ("Exodus", 20),  # Ten Commandments
-                ("I_Samuel", 17),  # David and Goliath
-                ("I_Kings", 3),  # Solomon's wisdom
-                ("Psalms", 23),  # The Lord is my shepherd
-                ("Job", 1),  # Job's trials
-            ]:
-                should_add_image = True
-
-            if should_add_image:
-                # Use the next image in our list, cycling through all images
-                chagall_image = self.all_chagall_images[
-                    self.chagall_index % len(self.all_chagall_images)
-                ]
-                image_file = chagall_image["filename"]
-                self.chagall_index += 1
+        # Check for image - first try original artwork, then definitive Chagall placement
+        image_file = self.image_map.get((book_name, chapter_num)) or (
+            self.chagall_chapter_map.get((book_name, chapter_num), [None])[0]
+        )
 
         # Try to use template
         try:
@@ -665,6 +714,14 @@ class TanakhGenerator:
             print(f"📖 Processing {english_name}...")
 
             book_chapters = []
+
+            # Add a book intro page (if we have an associated image)
+            intro_page = self.create_book_intro_page(english_name, hebrew_name)
+            if intro_page:
+                intro_page.add_item(css)
+                book.add_item(intro_page)
+                spine.append(intro_page)
+                book_chapters.append(intro_page)
             for chapter_num in range(1, chapter_count + 1):
                 chapter = self.create_chapter_responsive(
                     english_name, hebrew_name, chapter_num, chapter_count

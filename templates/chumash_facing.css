@@ -1,0 +1,78 @@
+@font-face {
+  font-family: "NotoSerifHebrew";
+  src: url("fonts/NotoSerifHebrew-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@page {
+  size: 6in 9in;
+  margin: 0.7in;
+}
+
+body {
+  margin: 0;
+  color: #1a1a1a;
+  font-family: Georgia, serif;
+}
+
+.page {
+  page-break-after: always;
+}
+.page.blank {
+}
+
+.header {
+  font-size: 0.85rem;
+  color: #666;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.page.en .header {
+  text-align: left;
+}
+.page.he .header {
+  text-align: right;
+  direction: rtl;
+  font-family: "NotoSerifHebrew", serif;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.verse {
+  margin: 0.15rem 0;
+}
+.page.en .verse {
+  direction: ltr;
+  text-align: left;
+}
+.page.he .verse {
+  direction: rtl;
+  text-align: right;
+  font-family: "NotoSerifHebrew", serif;
+}
+
+.vnum {
+  color: #777;
+  font-size: 0.75rem;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0.4in;
+  left: 0.7in;
+  right: 0.7in;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #777;
+}
+
+/* Utility to avoid breaking headers from first verse */
+.no-break {
+  page-break-inside: avoid;
+}

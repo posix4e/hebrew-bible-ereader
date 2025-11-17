@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Chumash Facing Pages</title>
+    <link rel="stylesheet" href="chumash_facing.css" />
+  </head>
+  <body>
+    {% if start_blank %}
+    <div class="page blank"></div>
+    {% endif %} {% for spread in spreads %}
+    <!-- English (verso/left) -->
+    <div class="page en">
+      <div class="header">
+        <span class="title">{{spread.book_en}} {{spread.ch_num}}</span>
+      </div>
+      <div class="no-break">
+        {% for v in spread.verses %}
+        <div class="verse"><span class="vnum">{{v.n}}.</span> {{v.en}}</div>
+        {% endfor %}
+      </div>
+      <div class="footer">
+        <div>{{spread.book_en}} {{spread.ch_num}}</div>
+        <div>Chumash layout</div>
+      </div>
+    </div>
+
+    <!-- Hebrew (recto/right) -->
+    <div class="page he">
+      <div class="header">
+        <span class="title">{{spread.book_he}} פרק {{spread.ch_num_he}}</span>
+      </div>
+      <div class="no-break">
+        {% for v in spread.verses %}
+        <div class="verse"><span class="vnum">{{v.n}}.</span> {{v.he}}</div>
+        {% endfor %}
+      </div>
+      <div class="footer">
+        <div>{{spread.book_he}} · {{spread.book_en}}</div>
+        <div>Facing pages</div>
+      </div>
+    </div>
+    {% endfor %}
+  </body>
+</html>

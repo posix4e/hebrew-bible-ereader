@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chagall Bible Illustrations Gallery - Hebrew Bible eReader</title>
+    <title>Chagall Bible Illustrations Gallery - Hebrew Bible E-Reader</title>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
@@ -242,210 +242,71 @@
     </div>
 
     <script>
-      // Chapter placement data - shows where each image appears in the EPUB
-      const placementMap = {};
+      // Utility: Roman numeral to integer
+      function romanToInt(roman) {
+        if (!roman) return null;
+        const values = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+        let sum = 0;
+        let prev = 0;
+        for (let i = roman.length - 1; i >= 0; i--) {
+          const c = roman[i];
+          const val = values[c];
+          if (!val) return null;
+          if (val < prev) sum -= val; else sum += val;
+          prev = val;
+        }
+        return sum || null;
+      }
 
-      // Load complete placement data and then render gallery
-      let placementDataLoaded = fetch('chagall_placement_map.json')
-        .then(response => response.json())
-        .then(data => {
-          Object.assign(placementMap, data);
-          console.log('Loaded placement data for', Object.keys(placementMap).length, 'images');
-        })
-        .catch(error => {
-          console.error('Error loading placement map:', error);
-          // Continue without placement data if file not found
-        });
+      // Extract a subject Book + Chapter reference from description text
+      // Examples it handles:
+      //   - "(Genesis XVIII, 16)" => Genesis 18
+      //   - "(Exodus IX, 21-23)" => Exodus 9
+      //   - "(Lamentations III:1-9)" => Lamentations 3
+      //   - "(I Kings, X, 18-20)" => I Kings 10
+      function extractSubjectRef(desc) {
+        if (!desc) return null;
+        // Grab the last parenthetical group which usually contains the ref
+        const parenMatch = desc.match(/\(([^()]+)\)\s*$/);
+        if (!parenMatch) return null;
+        const inside = parenMatch[1];
 
-      // Image data organized by biblical book
-      const imageData = {
-        Genesis: [
-          {
-            file: "chagall_creation_1960_france_by_marc_chagall.jpg",
-            title: "Creation (1960)",
-            desc: "The beginning of the world",
-          },
-          {
-            file: "chagall_adam_and_eve_with_the_forbidden_fruit_1960_france_.jpg",
-            title: "Adam and Eve with the Forbidden Fruit (1960)",
-            desc: "The temptation in Eden",
-          },
-          {
-            file: "chagall_adam_and_eve_expelled_from_paradise_land_1960_fran.jpg",
-            title: "Adam and Eve Expelled from Paradise (1960)",
-            desc: "The expulsion from Eden",
-          },
-          {
-            file: "chagall_eve_is_cursed_by_god_1960_france_by_marc_chagall.jpg",
-            title: "Eve is Cursed by God (1960)",
-            desc: "The consequences of disobedience",
-          },
-          {
-            file: "chagall_cain_and_abel_1960_france_by_marc_chagall.jpg",
-            title: "Cain and Abel (1960)",
-            desc: "The first murder",
-          },
-          {
-            file: "chagall_after_the_flood_noah_offering_a_sacrifice_to_god_g.jpg",
-            title: "After the Flood",
-            desc: "Noah offering a sacrifice to God (Genesis VIII, 20-22)",
-          },
-          {
-            file: "chagall_rainbow_in_the_sky_a_sign_of_covenant_between_god_.jpg",
-            title: "Rainbow in the Sky",
-            desc: "Sign of Covenant between God and Earth (Genesis IX, 8-17)",
-          },
-          {
-            file: "chagall_abraham_and_sarah_1956_france_by_marc_chagall.jpg",
-            title: "Abraham and Sarah (1956)",
-            desc: "The patriarchs of Israel",
-          },
-          {
-            file: "chagall_abraham_approaching_sodom_with_three_angels_genesi.jpg",
-            title: "Abraham and Three Angels",
-            desc: "Abraham approaching Sodom (Genesis XVIII, 16)",
-          },
-          {
-            file: "chagall_three_angels_visit_abraham_genesis_xviii_1_8_c_195.jpg",
-            title: "Three Angels Visit Abraham",
-            desc: "The divine visitors (Genesis XVIII, 1-8)",
-          },
-          {
-            file: "chagall_abraham_is_going_to_sacrifice_his_son_according_to.jpg",
-            title: "Sacrifice of Isaac",
-            desc: "Abraham's ultimate test of faith (Genesis XXII, 9-14)",
-          },
-          {
-            file: "chagall_abraham_weeping_for_sarah_genesis_xiii_1_1956_fran.jpg",
-            title: "Abraham Weeping for Sarah (1956)",
-            desc: "Mourning the matriarch (Genesis XIII, 1)",
-          },
-          {
-            file: "chagall_circumcision_prescribed_by_god_to_abraham_genesis_.jpg",
-            title: "Circumcision",
-            desc: "The covenant with Abraham (Genesis XVII, 10)",
-          },
-          {
-            file: "chagall_sarah_and_abimelech_1960_france_by_marc_chagall.jpg",
-            title: "Sarah and Abimelech (1960)",
-            desc: "Sarah in Gerar",
-          },
-          {
-            file: "chagall_sarah_and_angels_1960_france_by_marc_chagall.jpg",
-            title: "Sarah and Angels (1960)",
-            desc: "The promise of a son",
-          },
-          {
-            file: "chagall_women_of_bible_sarah_and_rebecca_by_marc_chagall.jpg",
-            title: "Sarah and Rebecca",
-            desc: "Women of the Bible",
-          },
-          {
-            file: "chagall_rebecca_gives_drink_to_the_servant_of_abraham_whic.jpg",
-            title: "Rebecca at the Well",
-            desc: "Meeting Isaac's bride (Genesis XXIV, 12-15)",
-          },
-          {
-            file: "chagall_before_the_death_blind_isaac_bless_his_second_son_.jpg",
-            title: "Isaac Blesses Jacob",
-            desc: "The stolen blessing (Genesis XXVII, 26-29)",
-          },
-          {
-            file: "chagall_jacob_sees_in_a_dream_a_ladder_touching_the_sky_in.jpg",
-            title: "Jacob's Ladder",
-            desc: "Angels ascending and descending (Genesis XXVIII, 14)",
-          },
-          {
-            file: "chagall_the_jacob_s_dream_1977_france_by_marc_chagall.jpg",
-            title: "Jacob's Dream (1977)",
-            desc: "The vision at Bethel",
-          },
-          {
-            file: "chagall_meeting_of_jacob_and_rachel_at_the_well_genesis_xx.jpg",
-            title: "Jacob and Rachel",
-            desc: "Meeting at the well (Genesis XXIX, 7-10)",
-          },
-          {
-            file: "chagall_jacob_wrestling_with_the_angel_genesis_xxxii_24_30.jpg",
-            title: "Jacob Wrestling with the Angel",
-            desc: "Becoming Israel (Genesis XXXII, 24-30)",
-          },
-          {
-            file: "chagall_women_of_bible_rachel_and_leah_by_marc_chagall.jpg",
-            title: "Rachel and Leah",
-            desc: "Women of the Bible",
-          },
-          {
-            file: "chagall_rachel_hides_her_father_s_household_gods_1960_fran.jpg",
-            title: "Rachel Hides the Idols (1960)",
-            desc: "Deceiving Laban",
-          },
-          {
-            file: "chagall_the_monument_on_the_tomb_of_rachel_on_the_path_eph.jpg",
-            title: "Rachel's Tomb",
-            desc: "Memorial on the path to Ephrath (Genesis XXXV, 19-20)",
-          },
-          {
-            file: "chagall_jacob_leaves_his_country_and_his_family_to_go_to_e.jpg",
-            title: "Jacob Goes to Egypt",
-            desc: "Journey to reunion (Genesis XLVI, 5-7)",
-          },
-          {
-            file: "chagall_jacob_having_recognized_the_tunic_of_joseph_that_h.jpg",
-            title: "Jacob Mourns Joseph",
-            desc: "The bloodied coat (Genesis XXXVII, 31-35)",
-          },
-          {
-            file: "chagall_jacob_blessed_two_sons_of_joseph_despite_joseph_he.jpg",
-            title: "Jacob Blesses Ephraim and Manasseh",
-            desc: "The crossed blessing (Genesis XLVIII, 14-21)",
-          },
-          {
-            file: "chagall_joseph_being_seventeen_years_old_goes_with_his_bro.jpg",
-            title: "Young Joseph",
-            desc: "With his brothers and flocks (Genesis XXXVII, 2)",
-          },
-          {
-            file: "chagall_joseph_is_attacked_and_robbed_by_his_brothers_gene.jpg",
-            title: "Joseph Attacked by Brothers",
-            desc: "Thrown into the pit (Genesis XXXVII, 23-24)",
-          },
-          {
-            file: "chagall_potiphar_s_wife_unsuccessfully_tries_to_seduce_jos.jpg",
-            title: "Joseph and Potiphar's Wife",
-            desc: "Resisting temptation (Genesis XXXIX, 7-9)",
-          },
-          {
-            file: "chagall_joseph_explains_the_dreams_of_pharaoh_genesis_xli_.jpg",
-            title: "Joseph Interprets Dreams",
-            desc: "Pharaoh's visions explained (Genesis XLI, 25-32)",
-          },
-          {
-            file: "chagall_having_become_the_favorite_the_pharaoh_joseph_gets.jpg",
-            title: "Joseph's Brothers in Egypt",
-            desc: "Reconciliation and forgiveness (Genesis XLV, 1-8)",
-          },
-          {
-            file: "chagall_lot_and_his_daughters_genesis_xix_31_35_c_1931_par.jpg",
-            title: "Lot and His Daughters",
-            desc: "After Sodom's destruction (Genesis XIX, 31-35)",
-          },
-          {
-            file: "chagall_hagar_in_the_desert_1960_france_by_marc_chagall.jpg",
-            title: "Hagar in the Desert (1960)",
-            desc: "The outcast and her son",
-          },
-          {
-            file: "chagall_tamar_beautiful_daughter_of_judah_1960_france_by_m.jpg",
-            title: "Tamar (1960)",
-            desc: "Daughter of Judah",
-          },
-          {
-            file: "chagall_god_creates_man_and_gives_him_the_breath_of_life_g.jpg",
-            title: "Creation of Man",
-            desc: "God breathes life into Adam (Genesis II, 7)",
-          },
-        ],
+        // Find a book name followed by a Roman numeral token
+        // Accept optional commas/colons around the numeral and verses
+        // Book names may include spaces (e.g., "I Kings", "Song of Songs")
+        const refMatch = inside.match(/^(.*?)\s*[,\s]*([IVXLCDM]+)\b/i);
+        if (!refMatch) return null;
+        let bookRaw = refMatch[1].trim();
+        const roman = (refMatch[2] || '').toUpperCase();
+        const chapter = romanToInt(roman);
+        if (!bookRaw || !chapter) return null;
+
+        // Normalize some common book name variants
+        // Keep existing spacing for books like "I Kings", "II Samuel", etc.
+        const bookNorm = bookRaw
+          .replace(/\bI\b\s*_/g, 'I ')
+          .replace(/\bII\b\s*_/g, 'II ')
+          .replace(/_/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        return `${bookNorm} ${chapter}`;
+      }
+
+      const imageData = null; // legacy placeholder
+      async function loadImageConfig() {
+        const res = await fetch('chagall_download_config.json');
+        const items = await res.json();
+        const byBook = new Map();
+        for (const it of items) {
+          const book = it.book || 'General';
+          if (!byBook.has(book)) byBook.set(book, []);
+          byBook.get(book).push(it);
+        }
+        return byBook;
+      }
+
+        // Legacy static data removed
         Exodus: [
           {
             file: "chagall_moses_is_saved_from_the_waters_of_nile_by_pharaoh_.jpg",
@@ -1002,36 +863,48 @@
         ],
       };
 
-      // Generate gallery HTML
-      function generateGallery() {
+      // Generate gallery HTML from dynamic config
+      async function generateGallery() {
         const container = document.getElementById("gallery-content");
-        let html = "";
+        const byBook = await loadImageConfig();
+        // Canonical order for user-friendly browsing
+        const bookOrder = [
+          'Genesis','Exodus','Leviticus','Numbers','Deuteronomy',
+          'Joshua','Judges','I_Samuel','II_Samuel','I_Kings','II_Kings','Isaiah','Jeremiah','Ezekiel',
+          'Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi',
+          'Psalms','Proverbs','Job','Song_of_Songs','Ruth','Lamentations','Ecclesiastes','Esther','Daniel','Ezra','Nehemiah','I_Chronicles','II_Chronicles','General'
+        ];
+        const books = Array.from(byBook.keys()).sort((a,b)=>{
+          const ai = bookOrder.indexOf(a);
+          const bi = bookOrder.indexOf(b);
+          if (ai === -1 && bi === -1) return a.localeCompare(b);
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        });
 
-        for (const [book, images] of Object.entries(imageData)) {
+        let html = '';
+        for (const book of books) {
+          const images = byBook.get(book);
           html += `<div class="book-section">`;
-          html += `<h2 class="book-title">${book}</h2>`;
+          html += `<h2 class="book-title">${book.replaceAll('_',' ')}</h2>`;
           html += `<div class="image-grid">`;
 
           images.forEach((img) => {
-            // Get chapter placement if available
-            const placement = placementMap[img.file];
-            const placementText = placement ? `<div class="chapter-placement">📍 ${placement.join(", ")}</div>` : '';
+            const subjectRef = extractSubjectRef(img.title);
+            const placementText = subjectRef ? `<div class="chapter-placement">📍 ${subjectRef}</div>` : '';
 
+            const safeTitle = img.title.replace(/'/g, "\\'");
             html += `
-                        <div class="image-card">
-                            <img src="images/${img.file}" alt="${
-                              img.title
-                            }" onclick="openModal('images/${img.file}', '${img.title.replace(
-                              /'/g,
-                              "\\'",
-                            )} - ${img.desc.replace(/'/g, "\\'")}')" loading="lazy">
-                            <div class="image-info">
-                                <div class="image-title">${img.title}</div>
-                                <div class="image-description">${img.desc}</div>
-                                ${placementText}
-                            </div>
-                        </div>
-                    `;
+              <div class="image-card">
+                <img src="images/${img.filename}" alt="${safeTitle}" onclick="openModal('images/${img.filename}', '${safeTitle}')" loading="lazy">
+                <div class="image-info">
+                  <div class="image-title">${img.title}</div>
+                  <div class="image-description"></div>
+                  ${placementText}
+                </div>
+              </div>
+            `;
           });
 
           html += `</div></div>`;
@@ -1062,10 +935,8 @@
         }
       };
 
-      // Generate gallery after placement data loads
-      placementDataLoaded.then(() => {
-        generateGallery();
-      });
+      // Generate gallery immediately (no external placement dependency)
+      generateGallery();
     </script>
   </body>
 </html>

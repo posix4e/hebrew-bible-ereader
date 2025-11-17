@@ -132,6 +132,40 @@ This tool uses the free Sefaria API for biblical texts. Please be respectful of 
 - [ ] Search functionality
 - [ ] Custom font embedding
 
+## Chumash-Style Layout (Draft)
+
+Generate a print-friendly chumash layout with either facing pages (Hebrew right, English left) or two-column mode.
+
+- Facing pages (default): `python generate_chumash.py --limit 2 --start-blank`
+  - Writes `chumash_out/chumash_facing.html` and `chumash.css`
+  - The `--start-blank` flag inserts a leading blank page so Hebrew appears on right (recto)
+- Two-column mode: `python generate_chumash.py --mode columns --limit 3`
+  - Writes `chumash_out/chumash.html` and `chumash.css`
+- Print to PDF from your browser with:
+  - Paper size: 6x9 inches (or A5)
+  - Margins: about 0.7in
+  - Background graphics: ON
+
+Manual page breaks can be set via `chumash_breaks.json`:
+
+```
+{
+  "Genesis": { "1": [1, 15], "2": [1] },
+  "Exodus": { "3": [1] }
+}
+```
+
+This forces a page break before the listed verse numbers in each chapter, keeping Hebrew and English aligned on the same row and the same page spread.
+
+If no breaks are provided, the facing-pages mode chunks by `--verses-per-page` (default 14).
+
 ## License
 
 This tool is provided as-is for personal use. Biblical texts are from Sefaria's open-source library.
+
+
+## TODO
+
+- Fix the chapter pictures
+- check other ereaders
+- Create commentary versions
