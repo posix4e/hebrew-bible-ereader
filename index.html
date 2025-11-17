@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hebrew Bible E‑Reader</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E📖%3C/text%3E%3C/svg%3E"
+    />
     <style>
       :root {
         --bg1: #667eea;
@@ -164,10 +168,14 @@
       }
 
       async function loadImageConfig() {
-        try {
-          const res = await fetch("chagall_download_config.json", { cache: "no-store" });
+        async function tryLoad(url) {
+          const res = await fetch(url, { cache: "no-store" });
           if (!res.ok) throw new Error("HTTP " + res.status);
-          const items = await res.json();
+          return res.json();
+        }
+        try {
+          // Try local path first (works when served from repo root on GH Pages)
+          const items = await tryLoad("chagall_download_config.json");
           const byBook = new Map();
           for (const it of items) {
             const book = it.book || "General";
@@ -175,9 +183,23 @@
             byBook.get(book).push(it);
           }
           return byBook;
-        } catch (e) {
-          console.error("Failed to load chagall_download_config.json", e);
-          return new Map();
+        } catch (e1) {
+          console.warn("Local config missing; trying raw.githubusercontent fallback");
+          try {
+            const rawUrl =
+              "https://raw.githubusercontent.com/posix4e/hebrew-bible-ereader/main/chagall_download_config.json";
+            const items = await fetch(rawUrl, { cache: "no-store" }).then((r) => r.json());
+            const byBook = new Map();
+            for (const it of items) {
+              const book = it.book || "General";
+              if (!byBook.has(book)) byBook.set(book, []);
+              byBook.get(book).push(it);
+            }
+            return byBook;
+          } catch (e2) {
+            console.error("Failed to load chagall_download_config.json", e2);
+            return new Map();
+          }
         }
       }
 
