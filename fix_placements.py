@@ -124,8 +124,6 @@ def main() -> None:
             fns = chmap[chap]
             if len(fns) <= 1:
                 continue
-            # keep first
-            keep = fns[0]
             for fn in fns[1:]:
                 dest = highest_free(book, used)
                 if dest is None:

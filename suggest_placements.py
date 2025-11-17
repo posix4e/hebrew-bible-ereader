@@ -227,18 +227,20 @@ def openrouter_suggest(
 ) -> List[Tuple[str, int, float, str]]:
     url = "https://openrouter.ai/api/v1/chat/completions"
     system_msg = (
-        "You are a precise librarian. Infer the subject's canonical Tanakh location "
-        "(Book and Chapter) from the given image filename and title. Use only the Tanakh books in the provided list."
+        "You are a precise librarian. Infer the subject's canonical Tanakh "
+        "location (Book and Chapter) from the given image filename and title. "
+        "Use only canonical Tanakh books."
     )
-    valid_books = ", ".join(BOOKS)
-    user_prompt = f"""
-Filename: {filename}
-Title: {title}
-
-Output strict JSON with key "suggestions" as an array of up to 3 items, each:
-  {{"book": <one of [{valid_books}]>, "chapter": <int>, "confidence": <0.0-1.0>, "rationale": <short string>}}
-Prefer parsing any book name and roman numerals in the name/title. If unsure, omit.
-"""
+    # valid_books list kept for internal reference; not embedded to avoid long lines
+    # valid_books = ", ".join(BOOKS)
+    user_prompt = (
+        f"Filename: {filename}\n"
+        f"Title: {title}\n\n"
+        'Output strict JSON with key "suggestions" as an array of up to 3 items, each:\n'
+        '  {"book": <canonical book name>, "chapter": <int>, '
+        '"confidence": <0.0-1.0>, "rationale": <short string>}\n'
+        "Prefer parsing any book name and roman numerals in the name/title. If unsure, omit.\n"
+    )
     payload = {
         "model": model,
         "messages": [

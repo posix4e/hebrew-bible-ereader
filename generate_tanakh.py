@@ -130,8 +130,10 @@ class TanakhGenerator:
         """Pick an appropriate Chagall image for a given book if available.
 
         Strategy:
-        - Use the first image listed in the config for this book (already filtered to existing files).
-        - Return a dict with keys: filename, title, path, book; or None if unavailable.
+        - Use the first image listed in the config for this book
+          (already filtered to existing files).
+        - Return a dict with keys: filename, title, path, book;
+          or None if unavailable.
         """
         # Respect override if available
         override = self.book_intro_overrides.get(book_name)

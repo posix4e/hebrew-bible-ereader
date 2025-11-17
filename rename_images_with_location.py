@@ -75,7 +75,7 @@ def main():
     for src, dst in plan[:10]:
         print(f"  {src.name} -> {dst.name}")
     if len(plan) > 10:
-        print(f"  ... and {len(plan)-10} more")
+        print(f"  ... and {len(plan) - 10} more")
 
     if not args.apply:
         print("\nDry run. Use --apply to perform changes.")
