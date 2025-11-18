@@ -20,20 +20,15 @@ import io
 
 class TanakhGenerator:
     def __init__(self):
+        # Optional explicit mapping mode
+        self.explicit_enabled = False
+        self.explicit_book_intro = {}
+        self.explicit_chapter_map = {}
         # Initialize tracking for Chagall images
         self.all_chagall_images = []  # Flat list of all images for distribution
         self.chagall_index = 0  # Track which image to use next
 
-        # Load Chagall images configuration
-        self.chagall_images = self._load_chagall_images()
-
-        # Load definitive per-chapter placements if available
-        self.chagall_chapter_map = self._load_chagall_placements()
-
-        # Load optional per-book intro image overrides
-        self.book_intro_overrides = self._load_book_intro_overrides()
-
-        # Full Tanakh - all books Jews expect
+        # Full Tanakh - all books Jews expect (define early for ordering logic)
         self.books = [
             # TORAH
             ("Genesis", "בראשית", "Bereshit", 50),
@@ -79,6 +74,45 @@ class TanakhGenerator:
             ("II_Chronicles", "דברי הימים ב", "Divrei_HaYamim_Bet", 36),
         ]
 
+        # Load explicit simple mapping, if present (overrides all logic)
+        self._load_explicit_config()
+
+        # Load Chagall images configuration
+        self.chagall_images = self._load_chagall_images()
+
+        # Load definitive per-chapter placements if available
+        self.chagall_chapter_map = self._load_chagall_placements()
+
+        # Pre-compute a balanced distribution of images across chapters per book
+        # using available Chagall images for that book. This avoids bunching
+        # images near the end when placements are clustered.
+        self.balanced_chapter_map = self._build_balanced_placements()
+
+        # Load optional per-book intro image overrides (ignored if explicit mode)
+        self.book_intro_overrides = self._load_book_intro_overrides()
+
+        # Track how each image is used to build an Illustration Index
+        # { filename: [
+        #     { 'kind': 'intro', 'book': str },
+        #     { 'kind': 'chapter', 'book': str, 'chapter': int }
+        # ] }
+        self.image_usages = {}
+
+        # Enforce unique usage of images across the EPUB
+        self.used_images = set()  # set[str]
+
+        # Map filename -> source book as defined in chagall config
+        self.source_book_by_filename = {}
+        for img in self.all_chagall_images:
+            fn = img.get("filename")
+            bk = img.get("book") or "General"
+            if fn:
+                self.source_book_by_filename[fn] = bk
+
+        # For biasing and fairness: maintain order and basic counts
+        self.book_order = [b[0] for b in self.books]
+        self.source_book_usage_counts = {b: 0 for b in self.book_order + ["General"]}
+
         # Image mappings for user's artwork - each used once
         self.image_map = {
             ("Genesis", 1): "creation.jpg",  # Creation of the world
@@ -93,6 +127,45 @@ class TanakhGenerator:
 
         # Set up Jinja2 templates
         self.template_env = Environment(loader=FileSystemLoader("templates"), autoescape=True)
+
+    def _load_explicit_config(self):
+        """Load explicit placements if provided in explicit_placements.json.
+
+        Schema:
+        {
+          "book_intro": { "Genesis": "image.jpg", ... },
+          "chapters": [ {"book": "Genesis", "chapter": 1, "image": "file.jpg"}, ... ]
+        }
+        """
+        cfg_path = Path("explicit_placements.json")
+        if not cfg_path.exists():
+            return
+        try:
+            data = json.load(open(cfg_path))
+            intro = data.get("book_intro", {})
+            ch_list = data.get("chapters", [])
+            if isinstance(intro, dict) and isinstance(ch_list, list):
+                # Build chapter map
+                chap_map = {}
+                for ent in ch_list:
+                    if not isinstance(ent, dict):
+                        continue
+                    b = ent.get("book")
+                    c = ent.get("chapter")
+                    f = ent.get("image")
+                    if b and isinstance(c, int) and f:
+                        chap_map[(b, c)] = f
+                self.explicit_book_intro = intro
+                self.explicit_chapter_map = chap_map
+                self.explicit_enabled = True
+                msg = (
+                    f"  ✓ Loaded explicit placements: {len(intro)} intros, "
+                    f"{len(chap_map)} chapter images"
+                )
+                print(msg)
+        except Exception:
+            # Ignore malformed explicit file
+            pass
 
     def _load_chagall_images(self) -> Dict:
         """Load Chagall images mapping from config"""
@@ -130,20 +203,59 @@ class TanakhGenerator:
         """Pick an appropriate Chagall image for a given book if available.
 
         Strategy:
-        - Use the first image listed in the config for this book
-          (already filtered to existing files).
+        - Prefer an unused image for this book.
+        - If override exists, try it only if unused; otherwise look for next unused.
+        - Fallback: an unused "General" image.
         - Return a dict with keys: filename, title, path, book;
           or None if unavailable.
         """
-        # Respect override if available
-        override = self.book_intro_overrides.get(book_name)
-        images = self.chagall_images.get(book_name)
-        if override and images:
-            for img in images:
-                if img.get("filename") == override:
+        if self.explicit_enabled:
+            # In explicit mode, intros are required and chosen exactly
+            filename = self.explicit_book_intro.get(book_name)
+            if not filename:
+                raise ValueError(f"Missing explicit intro image for book: {book_name}")
+            # Find the image dict for this filename
+            for img in self.all_chagall_images:
+                if img.get("filename") == filename:
                     return img
-        if images:
-            return images[0]
+            # If not a Chagall image, allow non-config images too
+            img_path = Path("images") / filename
+            if not img_path.exists():
+                raise FileNotFoundError(f"Intro image not found for {book_name}: {filename}")
+            return {
+                "filename": filename,
+                "title": Path(filename).stem.replace("_", " "),
+                "path": str(img_path),
+                "book": "General",
+            }
+
+        override = self.book_intro_overrides.get(book_name)
+        images = self.chagall_images.get(book_name) or []
+
+        # Helper to find first unused in a list of image dicts
+        def first_unused(img_list):
+            for im in img_list:
+                fn = im.get("filename")
+                if fn and fn not in self.used_images:
+                    return im
+            return None
+
+        # Try override if available and unused
+        if override:
+            for img in images:
+                if img.get("filename") == override and img.get("filename") not in self.used_images:
+                    return img
+
+        # Try first unused image for this book
+        pick = first_unused(images)
+        if pick:
+            return pick
+
+        # Fallback to "General" pool if available
+        general = self.chagall_images.get("General") or []
+        pick = first_unused(general)
+        if pick:
+            return pick
         return None
 
     def create_book_intro_page(self, book_name: str, hebrew_name: str) -> Optional[epub.EpubHtml]:
@@ -151,6 +263,21 @@ class TanakhGenerator:
         img = self._select_book_image(book_name)
         if not img:
             return None
+
+        # Record usage as an intro image
+        self.image_usages.setdefault(img["filename"], []).append(
+            {"kind": "intro", "book": book_name}
+        )
+        # Emit log line for intro image usage
+        print(f"    ↳ Intro image for {book_name}: {img['filename']}")
+
+        # Enforce uniqueness in explicit mode
+        if self.explicit_enabled and img["filename"] in self.used_images:
+            raise ValueError(f"Image reused across intro/chapters: {img['filename']}")
+        # Mark image as used
+        self.used_images.add(img["filename"])
+        src_bk = self.source_book_by_filename.get(img["filename"], "General")
+        self.source_book_usage_counts[src_bk] = self.source_book_usage_counts.get(src_bk, 0) + 1
 
         page = epub.EpubHtml(
             title=f"{book_name} - Introduction",
@@ -189,25 +316,93 @@ class TanakhGenerator:
         return page
 
     def _load_chagall_placements(self) -> Dict:
-        """Load filename -> ["Book Chapter"] mapping and build (book,chapter)->[filenames]."""
+        """Load filename -> "Book Chapter" mapping and build (book,chapter)->[filenames].
+
+        Supports backward-compat with older format where the value was a list of refs; if a list
+        is provided, only the first entry is used.
+        """
         mapping_path = Path("chagall_placement_map.json")
         chapter_map = {}
         if mapping_path.exists():
             try:
                 with open(mapping_path, "r") as f:
                     placement = json.load(f)
-                for filename, chapters in placement.items():
-                    for ref in chapters:
-                        try:
-                            book, chap_str = ref.rsplit(" ", 1)
-                            chap = int(chap_str)
-                        except Exception:
-                            continue
-                        chapter_map.setdefault((book, chap), []).append(filename)
-                print(f"  ✓ Loaded Chagall chapter placements for {len(placement)} images")
+                count = 0
+                for filename, ref_val in placement.items():
+                    # Accept string or list; if list, take the first element
+                    if isinstance(ref_val, list):
+                        ref = ref_val[0] if ref_val else None
+                    else:
+                        ref = ref_val
+                    if not isinstance(ref, str):
+                        continue
+                    try:
+                        book, chap_str = ref.rsplit(" ", 1)
+                        chap = int(chap_str)
+                    except Exception:
+                        continue
+                    chapter_map.setdefault((book, chap), []).append(filename)
+                    count += 1
+                print(f"  ✓ Loaded Chagall chapter placements for {count} images")
             except Exception:
                 pass
         return chapter_map
+
+    def _build_balanced_placements(self) -> Dict:
+        """Create a balanced (book, chapter) -> filename mapping.
+
+        Strategy:
+        - For each book that has Chagall images in the download config, spread
+          those images evenly across the book's chapter range.
+        - Uses simple even spacing: floor((i+1)*(chapters+1)/(N+1)).
+        - Defers uniqueness enforcement to runtime (we skip used images if
+          an intro consumed one earlier).
+        """
+        balanced = {}
+        # Build quick lookup for chapter counts
+        chapter_count_by_book = {b[0]: b[3] for b in self.books}
+
+        for book, images in (self.chagall_images or {}).items():
+            chapters = chapter_count_by_book.get(book)
+            if not chapters or not images:
+                continue
+
+            # Keep the declared order from config; take filenames only
+            filenames = [im.get("filename") for im in images if im.get("filename")]
+            if not filenames:
+                continue
+
+            # Limit number of placements to number of chapters
+            count = min(len(filenames), chapters)
+            # Compute evenly spaced target chapter numbers (1-based)
+            targets = [
+                max(1, min(chapters, (i + 1) * (chapters + 1) // (count + 1))) for i in range(count)
+            ]
+
+            # Assign sequentially; if two targets collide, nudge forward to next free
+            used_targets = set()
+            fi = 0
+            for t in targets:
+                # Ensure unique chapter target
+                chap = t
+                while chap in used_targets and chap <= chapters:
+                    chap += 1
+                if chap > chapters:
+                    # wrap backwards to find free slot
+                    chap = t
+                    while chap in used_targets and chap >= 1:
+                        chap -= 1
+                    if chap < 1 or chap in used_targets:
+                        # give up if no slot
+                        continue
+                used_targets.add(chap)
+                # Pick next filename
+                if fi >= len(filenames):
+                    break
+                balanced[(book, chap)] = filenames[fi]
+                fi += 1
+
+        return balanced
 
     def _load_book_intro_overrides(self) -> Dict:
         """Load optional mapping: book -> filename for intro page images."""
@@ -305,13 +500,67 @@ class TanakhGenerator:
                     english_verses.append(clean_v)
 
         # Check for image
-        image_file = self.image_map.get((book_name, chapter_num))
+        image_file = None
+        if self.explicit_enabled:
+            image_file = self.explicit_chapter_map.get((book_name, chapter_num))
+        else:
+            image_file = self.image_map.get((book_name, chapter_num))
+        # Fall back to balanced placement schedule
+        if not image_file and not self.explicit_enabled:
+            image_file = self.balanced_chapter_map.get((book_name, chapter_num))
 
         # Prefer definitive Chagall placements when no original artwork is set
-        if not image_file and self.chagall_chapter_map:
-            files = self.chagall_chapter_map.get((book_name, chapter_num))
-            if files:
-                image_file = files[0]
+        # Candidate selection function
+        def pick_candidate_for_chapter(book_name: str, chapter_num: int) -> Optional[str]:
+            if not self.chagall_chapter_map:
+                return None
+            files = list(self.chagall_chapter_map.get((book_name, chapter_num)) or [])
+            if not files:
+                return None
+
+            # Filter to unused
+            unused = [f for f in files if f not in self.used_images]
+            if not unused:
+                return None
+
+            # Score candidates:
+            #  - prefer source == book
+            #  - then lower usage of source book
+            #  - then earlier source book in order
+            def score(fn: str):
+                src = self.source_book_by_filename.get(fn, "General")
+                prefer = 0 if src == book_name else 1
+                usage = self.source_book_usage_counts.get(src, 0)
+                order = (
+                    self.book_order.index(src)
+                    if src in self.book_order
+                    else len(self.book_order) + 1
+                )
+                return (prefer, usage, order, fn)
+
+            unused.sort(key=score)
+            return unused[0]
+
+        # Respect uniqueness: if original-map image is already used, ignore it
+        if image_file and image_file in self.used_images:
+            if self.explicit_enabled:
+                raise ValueError(f"Image reused across intro/chapters: {image_file}")
+            image_file = None
+
+        if not image_file and not self.explicit_enabled:
+            image_file = pick_candidate_for_chapter(book_name, chapter_num)
+
+        # Record usage as chapter image if present
+        if image_file:
+            self.image_usages.setdefault(image_file, []).append(
+                {"kind": "chapter", "book": book_name, "chapter": chapter_num}
+            )
+            # Emit log line for chapter image usage
+            print(f"    ↳ Chapter image: {book_name} {chapter_num} -> {image_file}")
+            # Mark used and update counts
+            self.used_images.add(image_file)
+            src_bk = self.source_book_by_filename.get(image_file, "General")
+            self.source_book_usage_counts[src_bk] = self.source_book_usage_counts.get(src_bk, 0) + 1
 
         # Create chapter
         chapter = epub.EpubHtml(
@@ -509,6 +758,95 @@ class TanakhGenerator:
 
         return result
 
+    def _image_title_for_filename(self, filename: str) -> str:
+        """Best-effort human title for an image filename.
+        Prefer title from Chagall config; otherwise derive from filename.
+        """
+        # Try from loaded Chagall config
+        for img in self.all_chagall_images:
+            if img.get("filename") == filename:
+                return img.get("title") or filename
+        # Derive from filename
+        stem = Path(filename).stem
+        return stem.replace("_", " ").replace("-", " ").strip().title() or filename
+
+    def _usage_label(self, filename: str) -> str:
+        """Create a concise label describing how an image is used."""
+        usages = self.image_usages.get(filename, [])
+        if not usages:
+            return "Gallery / Unused"
+
+        parts = []
+        # Prefer stable ordering: intro first, then chapters by book/chapter
+        intro_parts = [u for u in usages if u.get("kind") == "intro"]
+        chap_parts = [u for u in usages if u.get("kind") == "chapter"]
+        for u in intro_parts:
+            parts.append(f"Book Intro — {u['book']}")
+        for u in sorted(chap_parts, key=lambda x: (x.get("book", ""), x.get("chapter", 0))):
+            parts.append(f"Chapter — {u['book']} {u['chapter']}")
+        return "; ".join(parts) if parts else "Gallery / Unused"
+
+    def _build_illustration_pages(self, book: epub.EpubBook, css: epub.EpubItem):
+        """Create a page per image and return (toc_section, pages_list).
+        Adds pages to the book and returns an epub.Section and list of page items.
+        """
+        image_dir = Path("images")
+        if not image_dir.exists():
+            return None, []
+
+        # Enumerate all JPEG images that were embedded
+        all_images = sorted(
+            list(image_dir.glob("*.jpg")) + list(image_dir.glob("*.jpeg")),
+            key=lambda p: p.name.lower(),
+        )
+
+        pages = []
+        for img_path in all_images:
+            filename = img_path.name
+            title_text = self._image_title_for_filename(filename)
+            usage_text = self._usage_label(filename)
+
+            page = epub.EpubHtml(
+                title=f"Illustration — {title_text}",
+                file_name=f"img_{img_path.stem}.xhtml",
+                lang="en",
+            )
+            page_html = f"""
+            <!DOCTYPE html>
+            <html xmlns=\"http://www.w3.org/1999/xhtml\">
+            <head>
+                <title>Illustration — {title_text}</title>
+                <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>
+                <style>
+                    .illustration-page {{ text-align:center; margin: 8% auto 5%; }}
+                    .illustration-page h1 {{ font-size: 1.3em; margin: 0.2em 0; }}
+                    .illustration-page .usage {{ font-size: 0.95em; color:#666;
+                                              margin: 0.4em 0 0.8em; }}
+                    .illustration-page img {{ max-width: 92%; height:auto; }}
+                    .illustration-page .caption {{ font-size: 0.9em; color:#555;
+                                                margin-top: 0.6em; }}
+                </style>
+            </head>
+            <body>
+                <div class=\"illustration-page\">
+                    <h1>{title_text}</h1>
+                    <div class=\"usage\">{usage_text}</div>
+                    <img src=\"images/{filename}\" alt=\"{title_text}\"/>
+                    <div class=\"caption\">{title_text}</div>
+                </div>
+            </body>
+            </html>
+            """
+            page.content = page_html
+            page.add_item(css)
+            book.add_item(page)
+            pages.append(page)
+
+        if pages:
+            section = epub.Section("Illustration Index")
+            return section, pages
+        return None, []
+
     def generate(
         self, output_file: str = "tanakh.epub", test_mode: bool = False, test2_mode: bool = False
     ):
@@ -567,6 +905,8 @@ class TanakhGenerator:
                         content=output.getvalue(),
                     )
                     book.add_item(img_item)
+                # Emit log line for embedded image asset
+                print(f"  • Embedded image asset: {img_path.name}")
             print(f"  ✓ Embedded {len(images)} illustrations\n")
 
         # Create dedication page
@@ -736,6 +1076,12 @@ class TanakhGenerator:
 
             if book_chapters:
                 toc.append((epub.Section(f"{english_name} - {hebrew_name}"), book_chapters))
+
+        # After processing all books/chapters, build per-image pages and add to TOC
+        illus_section, illus_pages = self._build_illustration_pages(book, css)
+        if illus_pages:
+            toc.append((illus_section, illus_pages))
+            spine.extend(illus_pages)
 
         # Set navigation
         book.toc = toc

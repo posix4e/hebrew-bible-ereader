@@ -1,0 +1,625 @@
+{
+  "book_intro": {
+    "Genesis": "chagall_creation_1960_france_by_marc_chagall.jpg",
+    "Exodus": "chagall_moses_receiving_the_tablets_of_the_law_from_god_on.jpg",
+    "Leviticus": "chagall_aaron_in_front_of_the_golden_candlestick_with_seve.jpg",
+    "Numbers": "chagall_the_face_of_israel_1960_france_by_marc_chagall.jpg",
+    "Deuteronomy": "chagall_moses_died_looking_to_the_promised_land_where_he_s.jpg",
+    "Joshua": "chagall_under_the_walls_of_jericho_joshua_listens_god_s_or.jpg",
+    "Judges": "chagall_samson_kills_a_young_lion_judges_xiv_5_6_c_1956_fr.jpg",
+    "I_Samuel": "chagall_david_s_victory_over_goliath_i_samuel_xvii_48_51_c.jpg",
+    "II_Samuel": "chagall_david_1956_france_by_marc_chagall.jpg",
+    "I_Kings": "chagall_the_judgement_of_solomon_i_kings_iii_16_27_c_1956_.jpg",
+    "II_Kings": "chagall_elijah_is_taken_to_heaven_in_a_chariot_of_fire_to_.jpg",
+    "Isaiah": "chagall_isaiah_1956_france_by_marc_chagall.jpg",
+    "Jeremiah": "chagall_jeremiah_1956_france_by_marc_chagall.jpg",
+    "Ezekiel": "chagall_the_vision_of_ezekiel_ezekiel_i_4_14_c_1956_france.jpg",
+    "Hosea": "chagall_jacob_wrestling_with_the_angel_genesis_xxxii_24_30.jpg",
+    "Joel": "chagall_title_page_angel_1956_france_by_marc_chagall.jpg",
+    "Amos": "chagall_an_angel_1956_france_by_marc_chagall.jpg",
+    "Obadiah": "chagall_angel_with_a_sword_1956_france_by_marc_chagall.jpg",
+    "Jonah": "chagall_angel_in_paradise_1956_france_by_marc_chagall.jpg",
+    "Micah": "chagall_peace_and_the_further_reign_of_jerusalem_in_prophe.jpg",
+    "Nahum": "chagall_rebellious_prophet_was_killed_by_a_lion_i_kings_xi.jpg",
+    "Habakkuk": "chagall_the_man_guided_by_the_lord_the_right_way_isaiah_lv.jpg",
+    "Zephaniah": "chagall_peace_and_glory_were_brought_to_jerusalem_with_the.jpg",
+    "Haggai": "chagall_happy_future_of_jerusalem_have_found_favor_with_go.jpg",
+    "Zechariah": "chagall_jerusalem_has_been_freed_from_babylon_according_to.jpg",
+    "Malachi": "chagall_the_forgiveness_of_god_is_announced_in_jerusalem_i.jpg",
+    "Psalms": "chagall_david_with_his_harp_1956_france_by_marc_chagall.jpg",
+    "Proverbs": "chagall_women_of_bible_sarah_and_rebecca_by_marc_chagall.jpg",
+    "Job": "chagall_job_in_despair_1960_france_by_marc_chagall.jpg",
+    "Song_of_Songs": "chagall_song_of_songs_v_c_1965_france_by_marc_chagall.jpg",
+    "Ruth": "chagall_boaz_wakes_up_and_see_ruth_at_his_feet_1960_france.jpg",
+    "Lamentations": "chagall_lamentations_of_jeremiah_lamentations_iii_1_9_c_19.jpg",
+    "Ecclesiastes": "chagall_paradise_1960_france_by_marc_chagall.jpg",
+    "Esther": "chagall_esther_1960_france_by_marc_chagall.jpg",
+    "Daniel": "chagall_prophet_daniel_with_lions_1956_france_by_marc_chag.jpg",
+    "Ezra": "chagall_jerusalem_was_taken_by_nebuchadnezzar_as_the_proph.jpg",
+    "Nehemiah": "chagall_the_monument_on_the_tomb_of_rachel_on_the_path_eph.jpg",
+    "I_Chronicles": "chagall_the_ark_of_the_covenant_transported_to_jerusalem_p.jpg",
+    "II_Chronicles": "chagall_solomon_praying_in_the_temple_in_presence_of_the_c.jpg"
+  },
+  "chapters": [
+    {
+      "book": "Genesis",
+      "chapter": 1,
+      "image": "creation.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 2,
+      "image": "chagall_untitled_the_cover_of_bible_1960_france_by_marc_ch.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 3,
+      "image": "chagall_eve_is_cursed_by_god_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 4,
+      "image": "chagall_cain_and_abel_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 13,
+      "image": "chagall_lot_and_his_daughters_genesis_xix_31_35_c_1931_par.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 14,
+      "image": "chagall_three_angels_visit_abraham_genesis_xviii_1_8_c_195.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 15,
+      "image": "chagall_the_jacob_s_dream_1977_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 16,
+      "image": "chagall_hagar_in_the_desert_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 17,
+      "image": "chagall_tamar_beautiful_daughter_of_judah_1960_france_by_m.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 19,
+      "image": "chagall_potiphar_s_wife_unsuccessfully_tries_to_seduce_jos.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 20,
+      "image": "chagall_sarah_and_abimelech_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 22,
+      "image": "sacrificeofabraham.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 23,
+      "image": "chagall_abraham_weeping_for_sarah_genesis_xiii_1_1956_fran.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 25,
+      "image": "chagall_having_become_the_favorite_the_pharaoh_joseph_gets.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 33,
+      "image": "chagall_adam_and_eve_with_the_forbidden_fruit_1960_france_.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 34,
+      "image": "chagall_adam_and_eve_expelled_from_paradise_land_1960_fran.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 35,
+      "image": "chagall_before_the_death_blind_isaac_bless_his_second_son_.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 36,
+      "image": "chagall_sarah_and_angels_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 38,
+      "image": "chagall_jacob_leaves_his_country_and_his_family_to_go_to_e.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 40,
+      "image": "chagall_jacob_blessed_two_sons_of_joseph_despite_joseph_he.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 42,
+      "image": "chagall_abraham_is_going_to_sacrifice_his_son_according_to.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 45,
+      "image": "chagall_joseph_being_seventeen_years_old_goes_with_his_bro.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 46,
+      "image": "chagall_jacob_sees_in_a_dream_a_ladder_touching_the_sky_in.jpg"
+    },
+    {
+      "book": "Genesis",
+      "chapter": 48,
+      "image": "chagall_jacob_having_recognized_the_tunic_of_joseph_that_h.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 3,
+      "image": "moses.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 13,
+      "image": "chagall_the_people_of_israel_leaving_egypt_exiode_xiii_18_.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 20,
+      "image": "chagall_moses_received_the_tablets_of_law_1956_france_by_m.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 26,
+      "image": "chagall_self_portrait_with_a_palette_1955_france_by_marc_c.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 27,
+      "image": "chagall_moses_with_the_tablets_of_the_law_1956_france_by_m.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 28,
+      "image": "chagall_the_israelites_which_have_gone_from_egypt_with_ang.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 29,
+      "image": "chagall_the_israelites_pass_the_red_sea_however_the_first_.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 30,
+      "image": "chagall_moses_spreads_the_darkness_over_egypt_exodus_ix_21.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 32,
+      "image": "chagall_the_hebrews_adore_the_golden_calf_exodus_xxxii_7_1.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 34,
+      "image": "chagall_moses_meets_in_the_desert_his_brother_aaron_who_ca.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 35,
+      "image": "chagall_moses_is_saved_from_the_waters_of_nile_by_pharaoh_.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 36,
+      "image": "chagall_moses_casts_his_stick_that_transformed_into_a_snak.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 37,
+      "image": "chagall_moses_and_his_brother_come_to_pharaoh_and_claim_th.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 38,
+      "image": "chagall_god_appears_to_moses_in_the_burning_bush_exodus_ii.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 39,
+      "image": "chagall_miriam_sister_of_moses_dances_with_her_friends_to_.jpg"
+    },
+    {
+      "book": "Exodus",
+      "chapter": 40,
+      "image": "chagall_in_rage_which_he_felt_to_the_idolatry_of_the_chose.jpg"
+    },
+    {
+      "book": "Leviticus",
+      "chapter": 1,
+      "image": "chagall_after_the_flood_noah_offering_a_sacrifice_to_god_g.jpg"
+    },
+    {
+      "book": "Numbers",
+      "chapter": 20,
+      "image": "chagall_moses_on_the_order_of_the_lord_has_struck_the_rock.jpg"
+    },
+    {
+      "book": "Deuteronomy",
+      "chapter": 12,
+      "image": "chagall_rachel_hides_her_father_s_household_gods_1960_fran.jpg"
+    },
+    {
+      "book": "Deuteronomy",
+      "chapter": 29,
+      "image": "chagall_rainbow_in_the_sky_a_sign_of_covenant_between_god_.jpg"
+    },
+    {
+      "book": "Deuteronomy",
+      "chapter": 32,
+      "image": "chagall_joshua_receives_the_blessing_of_moses_deuteronomy_.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 1,
+      "image": "chagall_already_been_old_joshua_brings_together_the_israel.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 2,
+      "image": "chagall_rahab_and_the_spies_of_jericho_1960_france_by_marc.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 3,
+      "image": "chagall_the_israelites_go_over_jordan_following_of_the_ark.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 5,
+      "image": "chagall_circumcision_prescribed_by_god_to_abraham_genesis_.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 16,
+      "image": "chagall_near_gibeon_joshua_to_give_his_troops_time_to_gain.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 18,
+      "image": "chagall_josue_and_the_stone_of_sichem_c_1931_paris_france_.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 19,
+      "image": "chagall_joshua_prostrates_himself_before_the_angel_sword_b.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 21,
+      "image": "chagall_joshua_moses_successor_as_head_of_israel_is_prepar.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 22,
+      "image": "chagall_joshua_is_delivering_the_five_kings_of_canaan_to_i.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 23,
+      "image": "chagall_joshua_closes_the_book_of_law_that_he_has_just_rea.jpg"
+    },
+    {
+      "book": "Joshua",
+      "chapter": 24,
+      "image": "joshuarockofschem.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 4,
+      "image": "chagall_deborah_the_prophetess_urges_barak_to_raise_an_arm.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 1,
+      "image": "chagall_naomi_and_her_daughters_in_law_1960_france_by_marc.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 13,
+      "image": "chagall_manoah_and_his_wife_offering_a_sacrifice_saw_the_a.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 16,
+      "image": "chagall_delilah_cut_samson_s_hair_and_had_thus_deprived_hi.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 19,
+      "image": "chagall_prisoner_of_the_philistines_who_gouged_out_his_eye.jpg"
+    },
+    {
+      "book": "Judges",
+      "chapter": 20,
+      "image": "chagall_having_lingered_in_gaza_house_of_courtesan_and_wat.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 16,
+      "image": "davidwithhisharp.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 19,
+      "image": "chagall_michal_saves_david_from_saul_1960_france_by_marc_c.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 24,
+      "image": "chagall_david_with_the_head_of_goliath_comes_to_saul_i_sam.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 27,
+      "image": "chagall_david_killed_a_lion_that_threatened_his_flock_i_sa.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 28,
+      "image": "chagall_the_young_samuel_the_priest_s_servant_heard_that_h.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 29,
+      "image": "chagall_hannah_prays_to_the_lord_for_a_son_who_will_be_sam.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 30,
+      "image": "chagall_by_beating_the_philistines_saul_killed_himself_by_.jpg"
+    },
+    {
+      "book": "I_Samuel",
+      "chapter": 31,
+      "image": "chagall_samuel_is_pouring_anointing_oil_to_saul_s_head_in_.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 14,
+      "image": "chagall_driven_from_jerusalem_by_rebelled_again_absalom_da.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 15,
+      "image": "chagall_david_on_his_throne_hosts_his_rebellious_son_absal.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 17,
+      "image": "chagall_david_and_bathsheba_1956_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 18,
+      "image": "chagall_absalom_riding_on_a_mule_is_caught_by_the_hair_on_.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 19,
+      "image": "chagall_being_informed_about_absalom_s_death_which_has_bee.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 20,
+      "image": "chagall_david_and_absalom_1956_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 23,
+      "image": "chagall_having_heard_about_the_death_of_jonathan_his_close.jpg"
+    },
+    {
+      "book": "II_Samuel",
+      "chapter": 24,
+      "image": "chagall_from_the_terrace_of_his_palace_david_sees_bathing_.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 3,
+      "image": "solomon.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 7,
+      "image": "chagall_being_asleep_in_the_desert_where_he_had_retired_to.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 8,
+      "image": "chagall_bathsheba_reminds_david_of_his_promise_to_appoint_.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 9,
+      "image": "chagall_the_lord_appears_to_elijah_at_the_entrance_to_the_.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 10,
+      "image": "chagall_arrival_of_queen_sheba_to_jerusalem_i_kings_x_1_5_.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 15,
+      "image": "chagall_solomon_is_proclaimed_a_king_of_israel_i_kings_i_3.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 16,
+      "image": "chagall_solomon_1956_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 17,
+      "image": "chagall_the_sacrifice_offered_by_elijah_is_consumed_by_the.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 18,
+      "image": "chagall_god_appears_to_solomon_in_a_dream_and_he_asked_him.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 20,
+      "image": "chagall_elijah_resurrects_the_son_of_the_widow_of_zarephat.jpg"
+    },
+    {
+      "book": "I_Kings",
+      "chapter": 22,
+      "image": "chagall_elijah_met_at_the_gate_of_zarephath_a_widow_trying.jpg"
+    },
+    {
+      "book": "II_Kings",
+      "chapter": 1,
+      "image": "chagall_elijah_on_the_top_of_mount_carmel_announced_the_im.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 1,
+      "image": "chagall_abraham_approaching_sodom_with_three_angels_genesi.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 6,
+      "image": "chagall_a_seraph_purify_the_lips_of_isaiah_with_a_hot_coal.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 51,
+      "image": "chagall_abraham_and_sarah_1956_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 58,
+      "image": "chagall_reconciliation_of_all_creatures_under_the_reign_of.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 65,
+      "image": "chagall_isaiah_s_prayer_isaiah_lxiv_6_11_c_1956_france_by_.jpg"
+    },
+    {
+      "book": "Isaiah",
+      "chapter": 66,
+      "image": "chagall_isaiah_s_oracle_on_the_ruins_of_babylon_isaiah_xii.jpg"
+    },
+    {
+      "book": "Jeremiah",
+      "chapter": 9,
+      "image": "chagall_weeping_of_jeremiah_1956_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Jeremiah",
+      "chapter": 50,
+      "image": "chagall_jeremiah_thrown_into_a_prison_by_the_people_of_kin.jpg"
+    },
+    {
+      "book": "Jeremiah",
+      "chapter": 51,
+      "image": "chagall_jeremiah_received_gift_of_the_prophecy_jeremiah_i_.jpg"
+    },
+    {
+      "book": "Ezekiel",
+      "chapter": 2,
+      "image": "chagall_the_calling_of_ezekiel_ezekiel_ii_8x_iii_3_c_1956_.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 18,
+      "image": "chagall_david_freed_from_all_of_his_enemies_sings_a_hymn_o.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 24,
+      "image": "chagall_king_david_ii_samuel_vi_4_5_c_1956_france_by_marc_.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 45,
+      "image": "chagall_rebecca_gives_drink_to_the_servant_of_abraham_whic.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 104,
+      "image": "chagall_god_creates_man_and_gives_him_the_breath_of_life_g.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 105,
+      "image": "chagall_joseph_is_attacked_and_robbed_by_his_brothers_gene.jpg"
+    },
+    {
+      "book": "Psalms",
+      "chapter": 150,
+      "image": "chagall_david_sings_accompanying_himself_in_the_harp_befor.jpg"
+    },
+    {
+      "book": "Job",
+      "chapter": 42,
+      "image": "chagall_job_praying_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Song_of_Songs",
+      "chapter": 3,
+      "image": "chagall_song_of_songs_iii_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Song_of_Songs",
+      "chapter": 4,
+      "image": "chagall_meeting_of_jacob_and_rachel_at_the_well_genesis_xx.jpg"
+    },
+    {
+      "book": "Ruth",
+      "chapter": 1,
+      "image": "chagall_ruth_gleaning_1960_france_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Ruth",
+      "chapter": 2,
+      "image": "chagall_meeting_of_ruth_and_boaz_1960_france_by_marc_chaga.jpg"
+    },
+    {
+      "book": "Ruth",
+      "chapter": 3,
+      "image": "chagall_ruth_at_the_feet_of_boaz_1960_france_by_marc_chaga.jpg"
+    },
+    {
+      "book": "Ruth",
+      "chapter": 4,
+      "image": "chagall_women_of_bible_rachel_and_leah_by_marc_chagall.jpg"
+    },
+    {
+      "book": "Esther",
+      "chapter": 1,
+      "image": "chagall_ahasuerus_sends_vasthi_away_1960_france_by_marc_ch.jpg"
+    },
+    {
+      "book": "Daniel",
+      "chapter": 2,
+      "image": "chagall_joseph_explains_the_dreams_of_pharaoh_genesis_xli_.jpg"
+    },
+    {
+      "book": "II_Chronicles",
+      "chapter": 1,
+      "image": "chagall_solomon_on_the_throne_i_kings_x_18_20_c_1956_franc.jpg"
+    }
+  ]
+}
