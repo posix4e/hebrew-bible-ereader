@@ -58,6 +58,23 @@
       .nav a:hover {
         border-bottom-color: #fff;
       }
+      .nav .btn-epub {
+        display: inline-block;
+        background: #fff;
+        color: var(--bg2);
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        transition:
+          transform 0.06s ease,
+          box-shadow 0.2s ease;
+      }
+      .nav .btn-epub:hover {
+        transform: translateY(-1px);
+        border-bottom-color: transparent;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+      }
       .divider {
         height: 2px;
         margin-top: 10px;
@@ -70,6 +87,42 @@
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         padding: 18px 20px;
         border-left: 4px solid var(--accent);
+      }
+      .cta {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: center;
+      }
+      .cta .lead {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #333;
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, #ffce54, #ff8c42);
+        color: #222;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+        transition:
+          transform 0.06s ease,
+          box-shadow 0.2s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+      }
+      .btn-primary .note {
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.65);
+        font-size: 0.92rem;
       }
       .he {
         direction: rtl;
@@ -91,10 +144,21 @@
         <h1>Hebrew Bible E‑Reader</h1>
         <div class="nav">
           <a href="#gallery">Gallery</a>
-          <a href="tanakh.epub">The Book (EPUB)</a>
+          <a class="btn-epub" href="tanakh.epub" download>⬇️ Download EPUB</a>
         </div>
         <div class="divider"></div>
       </header>
+
+      <section class="card cta" aria-label="Download EPUB">
+        <p class="lead">
+          Get the complete Hebrew Bible, beautifully typeset with parallel Hebrew/English and
+          curated Chagall illustrations.
+        </p>
+        <a class="btn-primary" href="tanakh.epub" download>
+          📚 Download Hebrew Bible (EPUB)
+          <span class="note">Kobo/Kindle compatible</span>
+        </a>
+      </section>
 
       <section class="card">
         <div class="he">לשם יחוד קודשא בריך הוא ושכינתיה</div>
